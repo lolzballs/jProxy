@@ -16,8 +16,11 @@ public class Constants {
     public static final byte LOGIN_SUCCESSFUL = 0;
     public static final byte LOGIN_INVALIDCOMBO = 1;
 
-    // TCP Connection request return codes
+    // TCP connection
     public static final byte CONNECTION_TCP = 0x41;
+    public static final byte DISCONNECT_TCP = 0x42;
+
+    // TCP connection status
     public static final byte TCP_CONNECTION_OK = 1;
     public static final byte TCP_CONNECTION_OTHER = 0;
     public static final byte TCP_CONNECTION_REFUSED = -1;
@@ -32,7 +35,7 @@ public class Constants {
     public static final int MAX_MTU = 1500;
     public static final int MAX_CONNECTIONS = 1024;
 
-    // Algorithms
+    // Crypto
     public static final String RSA_ALGORITHM = "RSA";
     public static final String AES_ALGORITHM = "AES";
     public static final int RSA_KEYSIZE = 2048;
