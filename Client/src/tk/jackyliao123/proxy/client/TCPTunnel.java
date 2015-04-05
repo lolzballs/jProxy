@@ -8,13 +8,11 @@ import java.util.HashMap;
 
 public class TCPTunnel {
     private final Tunnel tunnel;
-    private final EventProcessor processor;
     private final HashMap<Integer, Integer> ports; // key=port, value=id
-    private Connection[] connections;
+    private final Connection[] connections;
 
-    public TCPTunnel(Tunnel tunnel, EventProcessor processor) {
+    public TCPTunnel(Tunnel tunnel) {
         this.tunnel = tunnel;
-        this.processor = processor;
         this.ports = new HashMap<Integer, Integer>();
 
         this.connections = new Connection[Constants.MAX_CONNECTIONS];
@@ -24,6 +22,7 @@ public class TCPTunnel {
         byte status = data[1];
         int id = (data[2] << 8) | data[3];
 
+        connections[id].status = status;
         switch (status) {
             case Constants.TCP_CONNECTION_OK:
                 System.out.println(id + " OK");
