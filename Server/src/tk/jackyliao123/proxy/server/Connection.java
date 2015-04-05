@@ -1,6 +1,7 @@
 package tk.jackyliao123.proxy.server;
 
 import tk.jackyliao123.nioevent.*;
+import tk.jackyliao123.proxy.AESCipher;
 import tk.jackyliao123.proxy.Constants;
 
 import javax.crypto.BadPaddingException;
@@ -19,8 +20,7 @@ public class Connection {
     public final EventProcessor processor;
     public final SocketChannel clientSocket;
     public final String username;
-    private final Cipher encrypt;
-    private final Cipher decrypt;
+    private final AESCipher cipher;
     private final SocketChannel[] clientConnections;
     private final DeathEventHandler clientDeath;
     private final DeathEventHandler connectionDeath;
@@ -30,8 +30,7 @@ public class Connection {
         this.processor = server.processor;
         this.clientSocket = channel;
         this.username = username;
-        this.encrypt = Cipher.getInstance(Constants.AES_ALGORITHM);
-        this.decrypt = Cipher.getInstance(Constants.AES_ALGORITHM);
+        this.cipher = new AESCipher(key);
         this.clientConnections = new SocketChannel[Constants.MAX_CONNECTIONS];
         this.clientDeath = new DeathEventHandler() {
             @Override
@@ -51,32 +50,7 @@ public class Connection {
             }
         };
 
-        encrypt.init(Cipher.ENCRYPT_MODE, key);
-        decrypt.init(Cipher.DECRYPT_MODE, key);
-
         readPacket();
-    }
-
-    private byte[] encrypt(byte[] data) {
-        try {
-            return encrypt.doFinal(data);
-        } catch (IllegalBlockSizeException e) {
-            e.printStackTrace();
-        } catch (BadPaddingException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    private byte[] decrypt(byte[] data) {
-        try {
-            return decrypt.doFinal(data);
-        } catch (IllegalBlockSizeException e) {
-            e.printStackTrace();
-        } catch (BadPaddingException e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 
     private void readPacket() throws IOException {
@@ -92,7 +66,7 @@ public class Connection {
         server.processor.register(clientSocket, size * 16, new ReadEventHandler() {
             @Override
             public void action(EventProcess event, SocketChannel channel, byte[] bytes) throws IOException {
-                byte[] data = decrypt(bytes);
+                byte[] data = cipher.decrypt(bytes);
 
                 if (data == null) {
                     return;
@@ -118,7 +92,7 @@ public class Connection {
     }
 
     private boolean sendEncrypted(SocketChannel channel, byte[] data) throws IOException {
-        byte[] encrpyted = encrypt(data);
+        byte[] encrpyted = cipher.encrypt(data);
         if (encrpyted == null) {
             return false;
         }

@@ -21,6 +21,7 @@ public class Constants {
     public static final byte DISCONNECT_TCP = 0x42;
 
     // TCP connection status
+    public static final byte TCP_CONNECTION_UNKNOWN = 2; // When status has not been recieved yet
     public static final byte TCP_CONNECTION_OK = 1;
     public static final byte TCP_CONNECTION_OTHER = 0;
     public static final byte TCP_CONNECTION_REFUSED = -1;
