@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.HashMap;
@@ -118,15 +117,16 @@ public class TCPHandler {
             }
             try {
                 connection.socket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (IOException ignored) {
             }
         }
     }
 
-    public void death(int id) {
+    public void death(int id) throws IOException {
         int port = connections[id].port;
         connections[id] = null;
         ports.remove(port);
+
+        server.sendEncrypted(client, new byte[]{Constants.DISCONNECT_TCP, (byte) (id >> 8), (byte) (id & 0xFF)});
     }
 }
