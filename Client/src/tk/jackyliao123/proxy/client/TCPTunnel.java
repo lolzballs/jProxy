@@ -43,7 +43,8 @@ public class TCPTunnel {
     }
 
     public void disconnect(byte[] data) {
-
+        int id = (data[1] << 8) | data[2];
+        System.out.println(id + " DISCONNECT");
     }
 
     public void read(byte[] data) {
