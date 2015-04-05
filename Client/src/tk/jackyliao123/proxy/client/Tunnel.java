@@ -1,5 +1,6 @@
 package tk.jackyliao123.proxy.client;
 
+import tk.jackyliao123.nioevent.DeathEventHandler;
 import tk.jackyliao123.nioevent.EventProcess;
 import tk.jackyliao123.nioevent.EventProcessor;
 import tk.jackyliao123.nioevent.ReadEventHandler;
@@ -19,6 +20,7 @@ public class Tunnel {
     private final EventProcessor processor;
     private final AESCipher cipher;
     private final TCPTunnel tcp;
+    private final DeathEventHandler death;
 
     public Tunnel(InetSocketAddress address, String username, byte[] password) throws Exception {
         this.server = SocketChannel.open(address);
@@ -30,6 +32,13 @@ public class Tunnel {
         this.cipher = new AESCipher(key);
         this.processor = new EventProcessor(Selector.open());
         this.tcp = new TCPTunnel(this);
+        this.death = new DeathEventHandler() {
+            @Override
+            public void action(EventProcess event) throws IOException {
+                System.out.println("Disconnected from server.");
+                System.exit(0);
+            }
+        };
     }
 
     public boolean sendEncrypted(byte[] data) throws IOException {
@@ -52,7 +61,7 @@ public class Tunnel {
             public void action(EventProcess process, SocketChannel channel, byte[] bytes) throws IOException {
                 readEncrypted(bytes[0]);
             }
-        });
+        }, death);
     }
 
     private void readEncrypted(int size) throws IOException {
@@ -86,7 +95,7 @@ public class Tunnel {
 
                 readPacket();
             }
-        });
+        }, death);
     }
 
     public void registerChannel(SocketChannel channel) {
