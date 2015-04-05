@@ -18,7 +18,7 @@ public class Tunnel {
     public final SocketChannel server;
     private final EventProcessor processor;
     private final AESCipher cipher;
-    private TCPTunnel tcp;
+    private final TCPTunnel tcp;
 
     public Tunnel(InetSocketAddress address, String username, byte[] password) throws Exception {
         this.server = SocketChannel.open(address);
@@ -29,7 +29,7 @@ public class Tunnel {
 
         this.cipher = new AESCipher(key);
         this.processor = new EventProcessor(Selector.open());
-        this.tcp = new TCPTunnel(this, processor);
+        this.tcp = new TCPTunnel(this);
     }
 
     public boolean sendEncrypted(byte[] data) throws IOException {

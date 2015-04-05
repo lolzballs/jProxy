@@ -6,7 +6,7 @@ public class Connection {
     public final int id;
     public final byte[] ip;
     public final int port;
-    private int status;
+    public int status;
 
     public Connection(int id, byte[] ip, int port) {
         this.id = id;
