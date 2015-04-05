@@ -9,16 +9,12 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.security.*;
-import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
-import java.util.HashMap;
 
 public class Tunnel {
     private Connection[] connections;
@@ -91,9 +87,10 @@ public class Tunnel {
                 byte magic = data[0];
                 switch (magic) {
                     case Constants.CONNECTION_TCP:
-                        connectTCP(data);
+                        connectionResponse(data);
                         break;
                     case Constants.TYPE_TCP:
+                        recieveTCP();
                         break;
                     case Constants.TYPE_UDP:
                         break;
@@ -106,24 +103,61 @@ public class Tunnel {
         });
     }
 
-    private void connectTCP(byte[] data) {
+    private void recieveTCP() {
+
+    }
+
+    private void sendTCP(byte[] data, int id) {
+
+    }
+
+    private void connectTCP(byte[] ip, int port, int id) throws IOException {
+        byte[] data = new byte[9];
+        data[0] = 0x41;
+        data[1] = ip[0];
+        data[2] = ip[1];
+        data[3] = ip[2];
+        data[4] = ip[3];
+        data[5] = (byte) (port >> 8);
+        data[6] = (byte) (port & 0xFF);
+        data[7] = (byte) (id >> 8);
+        data[8] = (byte) (id & 0xFF);
+
+        sendEncrypted(socket, data);
+    }
+
+    private void connectionResponse(byte[] data) {
         byte status = data[1];
         int id = (data[2] << 8) | data[3];
 
         switch (status) {
-
+            case Constants.TCP_CONNECTION_OK:
+                System.out.println(id + " OK");
+                break;
+            case Constants.TCP_CONNECTION_TIMEOUT:
+                System.out.println(id + " TIMEOUT");
+                break;
+            case Constants.TCP_CONNECTION_REFUSED:
+                System.out.println(id + " REFUSED");
+                break;
+            case Constants.TCP_CONNECTION_UNREACHABLE:
+                System.out.println(id + " UNREACHABLE");
+                break;
+            case Constants.TCP_CONNECTION_OTHER:
+                System.out.println(id + " OTHER");
+                break;
         }
     }
 
     private boolean sendEncrypted(SocketChannel socket, byte[] data) throws IOException {
-        byte[] encrpyted = encrypt(data);
-        if (encrpyted == null) {
+        byte[] encrypted = encrypt(data);
+        if (encrypted == null) {
             return false;
         }
 
-        ByteBuffer send = ByteBuffer.allocate(1 + encrpyted.length);
-        send.put((byte) (encrpyted.length / 16));
-        send.put(encrpyted);
+        ByteBuffer send = ByteBuffer.allocate(1 + encrypted.length);
+        send.put((byte) (encrypted.length / 16));
+        send.put(encrypted);
 
         send.flip();
         return socket.write(send) == send.capacity();
@@ -136,18 +170,7 @@ public class Tunnel {
     }
 
     public void start() throws IOException {
-        byte[] data = new byte[9];
-        data[0] = 0x41;
-        data[1] = (byte) 127;
-        data[2] = (byte) 0;
-        data[3] = (byte) 0;
-        data[4] = (byte) 1;
-        data[5] = 0;
-        data[6] = 80;
-        data[7] = 0;
-        data[8] = 1;
-
-        sendEncrypted(socket, data);
+        connectTCP(new byte[]{127, 0, 0, 1}, 80, 1);
 
         byte[] payload = "     GET / HTTP/1.1\r\nHost: localhost\r\n\r\n".getBytes("UTF-8");
         payload[0] = 1;
