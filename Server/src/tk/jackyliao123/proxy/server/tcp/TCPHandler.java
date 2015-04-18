@@ -13,6 +13,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.nio.channels.spi.AbstractSelectableChannel;
 import java.util.HashMap;
 
 public class TCPHandler {
@@ -45,7 +46,8 @@ public class TCPHandler {
 
         processor.notifyConnection(socket, new ConnectEventHandler() {
             @Override
-            public void action(SocketChannel socket, boolean connectable) throws IOException {
+            public void action(AbstractSelectableChannel channel, boolean connectable) throws IOException {
+                SocketChannel socket = (SocketChannel) channel;
                 byte status;
                 try {
                     socket.finishConnect();
