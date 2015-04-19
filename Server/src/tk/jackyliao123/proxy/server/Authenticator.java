@@ -103,7 +103,7 @@ public class Authenticator {
     private void getUsernameLength(byte[] bytes) throws IOException {
         byte a = bytes[0];
         byte b = bytes[1];
-        usernameLength = (a << 8) | b;
+        usernameLength = (a << 8) + (b & 0xFF);
 
         processor.register(channel, usernameLength, new ReadEventHandler() {
             @Override

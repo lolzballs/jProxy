@@ -20,7 +20,6 @@ public class TCPHandler {
     private final Connection server;
     private final EventProcessor processor;
     private final SocketChannel client;
-    private final HashMap<Integer, Integer> ports; // key=port, value=id
     private final TCPConnection[] connections;
 
     public TCPHandler(Connection server, EventProcessor processor, SocketChannel client) {
@@ -28,13 +27,12 @@ public class TCPHandler {
         this.processor = processor;
         this.client = client;
 
-        this.ports = new HashMap<Integer, Integer>();
         this.connections = new TCPConnection[Constants.MAX_CONNECTIONS];
     }
 
     public void connect(byte[] data) throws IOException {
         final byte[] ip = new byte[]{data[1], data[2], data[3], data[4]};
-        final int port = (data[5] << 8) | data[6];
+        final int port = (data[5] << 8) + (data[6] & 0xFF);
         final byte id1 = data[7];
         final byte id2 = data[8];
 
@@ -69,7 +67,7 @@ public class TCPHandler {
                 }
 
                 server.sendEncrypted(client, new byte[]{Constants.CONNECTION_TCP, status, id1, id2});
-                int id = (id1 << 8) | id2;
+                int id = (id1 << 8) + (id2 & 0xFF);
 
                 if (status == Constants.TCP_CONNECTION_OK) {
                     connections[id] = new TCPConnection(id, ip, port, socket);
@@ -80,8 +78,8 @@ public class TCPHandler {
     }
 
     public void send(byte[] data) throws IOException {
-        int id = (data[1] << 8) | data[2];
-        int payloadLength = (data[3] << 8) | data[4];
+        int id = (data[1] << 8) + (data[2] & 0xFF);
+        int payloadLength = (data[3] << 8) + (data[4] & 0xFF);
         byte[] payload = new byte[payloadLength];
         System.arraycopy(data, 5, payload, 0, payloadLength);
 
@@ -100,9 +98,9 @@ public class TCPHandler {
             public void action(EventProcess process, SocketChannel channel, byte[] bytes) throws IOException {
                 byte[] data = new byte[bytes.length + 5];
                 data[0] = Constants.TYPE_TCP;
-                data[1] = (byte) (id >> 8);
+                data[1] = (byte) (id >>> 8);
                 data[2] = (byte) (id & 0xFF);
-                data[3] = (byte) (bytes.length >> 8);
+                data[3] = (byte) (bytes.length >>> 8);
                 data[4] = (byte) (bytes.length & 0xFF);
                 System.arraycopy(bytes, 0, data, 5, bytes.length);
                 server.sendEncrypted(client, data);
@@ -127,8 +125,7 @@ public class TCPHandler {
     public void death(int id) throws IOException {
         int port = connections[id].port;
         connections[id] = null;
-        ports.remove(port);
 
-        server.sendEncrypted(client, new byte[]{Constants.DISCONNECT_TCP, (byte) (id >> 8), (byte) (id & 0xFF)});
+        server.sendEncrypted(client, new byte[]{Constants.DISCONNECT_TCP, (byte) (id >>> 8), (byte) (id & 0xFF)});
     }
 }

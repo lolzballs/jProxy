@@ -1,26 +1,24 @@
 package tk.jackyliao123.proxy.client;
 
-import tk.jackyliao123.nioevent.EventProcessor;
 import tk.jackyliao123.proxy.Constants;
 
 import java.io.IOException;
-import java.util.HashMap;
 
 public class TCPTunnel {
     private final Tunnel tunnel;
-    private final HashMap<Integer, Integer> ports; // key=port, value=id
-    private final Connection[] connections;
+    private final TCPConnection[] connections;
+    private final ReadCallback callback;
 
-    public TCPTunnel(Tunnel tunnel) {
+    public TCPTunnel(Tunnel tunnel, ReadCallback callback) {
         this.tunnel = tunnel;
-        this.ports = new HashMap<Integer, Integer>();
+        this.callback = callback;
 
-        this.connections = new Connection[Constants.MAX_CONNECTIONS];
+        this.connections = new TCPConnection[Constants.MAX_CONNECTIONS];
     }
 
     public void connect(byte[] data) {
         byte status = data[1];
-        int id = (data[2] << 8) | data[3];
+        int id = (data[2] << 8) + (data[3] & 0xFF);
 
         connections[id].status = status;
         switch (status) {
@@ -40,15 +38,23 @@ public class TCPTunnel {
                 System.out.println(id + " OTHER");
                 break;
         }
+
+        callback.action(connections[id], new byte[]{});
     }
 
     public void disconnect(byte[] data) {
-        int id = (data[1] << 8) | data[2];
+        int id = (data[1] << 8) + (data[2] & 0xFF);
         System.out.println(id + " DISCONNECT");
     }
 
     public void read(byte[] data) {
+        int id = (data[1] << 8) + (data[2] & 0xFF);
+        int length = (data[3] << 8) + (data[4] & 0xFF);
 
+        byte[] payload = new byte[length];
+        System.arraycopy(data, 5, payload, 0, length);
+
+        callback.action(connections[id], payload);
     }
 
     public void createConnection(byte[] ip, int port, int id) throws IOException {
@@ -58,22 +64,21 @@ public class TCPTunnel {
         data[2] = ip[1];
         data[3] = ip[2];
         data[4] = ip[3];
-        data[5] = (byte) (port >> 8);
+        data[5] = (byte) (port >>> 8);
         data[6] = (byte) (port & 0xFF);
-        data[7] = (byte) (id >> 8);
+        data[7] = (byte) (id >>> 8);
         data[8] = (byte) (id & 0xFF);
 
         tunnel.sendEncrypted(data);
-        ports.put(port, id);
-        connections[id] = new Connection(id, ip, port);
+        connections[id] = new TCPConnection(id, ip, port);
     }
 
     public void send(byte[] data, int id) throws IOException {
         byte[] payload = new byte[data.length + 5];
         payload[0] = 1;
-        payload[1] = (byte) (id >> 8);
+        payload[1] = (byte) (id >>> 8);
         payload[2] = (byte) (id & 0xFF);
-        payload[3] = (byte) (data.length >> 8);
+        payload[3] = (byte) (data.length >>> 8);
         payload[4] = (byte) (data.length & 0xFF);
 
         System.arraycopy(data, 0, payload, 5, data.length);

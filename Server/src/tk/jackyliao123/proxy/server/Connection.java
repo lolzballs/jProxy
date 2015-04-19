@@ -67,7 +67,7 @@ public class Connection {
         server.processor.register(client, 1, new ReadEventHandler() {
             @Override
             public void action(EventProcess event, SocketChannel channel, byte[] bytes) throws IOException {
-                readEncrypted(bytes[0]);
+                readEncrypted(bytes[0] & 0xFF);
             }
         }, clientDeath);
     }

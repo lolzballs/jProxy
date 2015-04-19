@@ -19,10 +19,11 @@ public class Tunnel {
     public final SocketChannel server;
     private final EventProcessor processor;
     private final AESCipher cipher;
-    private final TCPTunnel tcp;
     private final DeathEventHandler death;
 
-    public Tunnel(InetSocketAddress address, String username, byte[] password) throws Exception {
+    public final TCPTunnel tcp;
+
+    public Tunnel(InetSocketAddress address, String username, byte[] password, ReadCallback tcpcallback) throws Exception {
         this.server = SocketChannel.open(address);
 
         // Connect and Authenticate
@@ -31,7 +32,7 @@ public class Tunnel {
 
         this.cipher = new AESCipher(key);
         this.processor = new EventProcessor(Selector.open());
-        this.tcp = new TCPTunnel(this);
+        this.tcp = new TCPTunnel(this, tcpcallback);
         this.death = new DeathEventHandler() {
             @Override
             public void action(EventProcess event) throws IOException {
@@ -105,10 +106,6 @@ public class Tunnel {
     }
 
     public void start() throws IOException {
-        tcp.createConnection(new byte[]{127, 0, 0, 1}, 80, 1);
-
-        tcp.send("GET / HTTP/1.1\r\nHost: localhost\r\n\r\n".getBytes("UTF-8"), 1);
-
         readPacket();
 
         while (true) {
@@ -120,8 +117,8 @@ public class Tunnel {
         processor.pollEvents();
     }
 
-    public static void main(String[] args) throws Exception {
-        Tunnel tunnel = new Tunnel(new InetSocketAddress("localhost", 16384), "lolzballs", "lollolzballs".getBytes("UTF-8"));
-        tunnel.start();
-    }
+//    public static void main(String[] args) throws Exception {
+//        Tunnel tunnel = new Tunnel(new InetSocketAddress("localhost", 16384), "lolzballs", "lollolzballs".getBytes("UTF-8"));
+//        tunnel.start();
+//    }
 }
