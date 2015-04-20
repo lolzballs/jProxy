@@ -13,7 +13,6 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.util.Arrays;
 
 public class Tunnel {
     public final SocketChannel server;
@@ -22,8 +21,9 @@ public class Tunnel {
     private final DeathEventHandler death;
 
     public final TCPTunnel tcp;
+    public final DNSTunnel dns;
 
-    public Tunnel(InetSocketAddress address, String username, byte[] password, ReadCallback tcpcallback) throws Exception {
+    public Tunnel(InetSocketAddress address, String username, byte[] password, TCPCallback tcpcallback) throws Exception {
         this.server = SocketChannel.open(address);
 
         // Connect and Authenticate
@@ -32,7 +32,6 @@ public class Tunnel {
 
         this.cipher = new AESCipher(key);
         this.processor = new EventProcessor(Selector.open());
-        this.tcp = new TCPTunnel(this, tcpcallback);
         this.death = new DeathEventHandler() {
             @Override
             public void action(EventProcess event) throws IOException {
@@ -40,6 +39,9 @@ public class Tunnel {
                 System.exit(0);
             }
         };
+
+        this.tcp = new TCPTunnel(this, tcpcallback);
+        this.dns = new DNSTunnel(this);
     }
 
     public boolean sendEncrypted(byte[] data) throws IOException {
@@ -53,7 +55,13 @@ public class Tunnel {
         send.put(encrypted);
 
         send.flip();
-        return server.write(send) == send.capacity();
+
+        // TODO: MAKE MORE EFFICENT
+        int written = 0;
+        while (send.hasRemaining()) {
+            written += server.write(send);
+        }
+        return written == send.capacity();
     }
 
     private void readPacket() throws IOException {
@@ -66,6 +74,7 @@ public class Tunnel {
     }
 
     private void readEncrypted(int size) throws IOException {
+        System.out.println(size * 16);
         processor.register(server, size * 16, new ReadEventHandler() {
             @Override
             public void action(EventProcess event, SocketChannel channel, byte[] bytes) throws IOException {
@@ -74,8 +83,6 @@ public class Tunnel {
                 if (data == null) {
                     return;
                 }
-
-                System.out.println(Arrays.toString(data));
 
                 byte magic = data[0];
                 switch (magic) {
@@ -91,6 +98,9 @@ public class Tunnel {
                     case Constants.TYPE_UDP:
                         break;
                     case Constants.TYPE_PING:
+                        break;
+                    case Constants.TYPE_DNS:
+                        dns.found(data);
                         break;
                 }
 

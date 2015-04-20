@@ -75,6 +75,7 @@ public class EventProcessor {
         }
 
         for (AbstractSelectableChannel channel : dead) {
+            channel.close();
             waitForConnect.remove(channel);
         }
     }

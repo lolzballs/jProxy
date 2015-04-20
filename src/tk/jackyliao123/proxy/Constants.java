@@ -16,6 +16,16 @@ public class Constants {
     public static final byte LOGIN_SUCCESSFUL = 0;
     public static final byte LOGIN_INVALIDCOMBO = 1;
 
+    // Send packet
+    public static final byte TYPE_PING = 0x00;
+    public static final byte TYPE_TCP = 0x01;
+    public static final byte TYPE_UDP = 0x02;
+    public static final byte TYPE_DNS = 0x03;
+
+    // DNS
+    public static final byte DNS_SUCCESS = 1;
+    public static final byte DNS_FAIL = 0;
+
     // TCP connection
     public static final byte CONNECTION_TCP = 0x41;
     public static final byte DISCONNECT_TCP = 0x42;
@@ -28,12 +38,7 @@ public class Constants {
     public static final byte TCP_CONNECTION_TIMEOUT = -2;
     public static final byte TCP_CONNECTION_UNREACHABLE = -3;
 
-    // Send packet
-    public static final byte TYPE_PING = 0;
-    public static final byte TYPE_TCP = 1;
-    public static final byte TYPE_UDP = 2;
-
-    public static final int MAX_MTU = 1500;
+    public static final int MAX_MTU = 1400;
     public static final int MAX_CONNECTIONS = 1024;
 
     // Crypto

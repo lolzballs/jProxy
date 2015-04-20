@@ -25,7 +25,7 @@ public class AESCipher {
         } catch (BadPaddingException e) {
             e.printStackTrace();
         }
-        return null;
+        return new byte[0];
     }
 
     public byte[] decrypt(byte[] data) {
@@ -36,6 +36,6 @@ public class AESCipher {
         } catch (BadPaddingException e) {
             e.printStackTrace();
         }
-        return null;
+        return new byte[0];
     }
 }

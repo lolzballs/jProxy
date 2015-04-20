@@ -7,9 +7,9 @@ import java.io.IOException;
 public class TCPTunnel {
     private final Tunnel tunnel;
     private final TCPConnection[] connections;
-    private final ReadCallback callback;
+    private final TCPCallback callback;
 
-    public TCPTunnel(Tunnel tunnel, ReadCallback callback) {
+    public TCPTunnel(Tunnel tunnel, TCPCallback callback) {
         this.tunnel = tunnel;
         this.callback = callback;
 

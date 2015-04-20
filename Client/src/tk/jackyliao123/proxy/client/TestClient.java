@@ -1,11 +1,15 @@
 package tk.jackyliao123.proxy.client;
 
+import com.sun.corba.se.pept.transport.ReaderThread;
+
+import javax.swing.*;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayDeque;
+import java.util.HashMap;
 
 public class TestClient {
     public static Tunnel tunnel;
@@ -14,7 +18,7 @@ public class TestClient {
 
     public static void main(String[] args) {
         try {
-            tunnel = new Tunnel(new InetSocketAddress("localhost", 16384), "lolzballs", "lollolzballs".getBytes("UTF-8"), new ReadCallback() {
+            tunnel = new Tunnel(new InetSocketAddress("52.74.63.88"/*JOptionPane.showInputDialog(null, "Enter IP: ", "localhost")*/, 16384), "lolzballs", "lollolzballs".getBytes("UTF-8"), new TCPCallback() {
                 @Override
                 public void action(TCPConnection connection, byte[] data) {
                     if (data.length == 0) {
@@ -54,6 +58,7 @@ public class TestClient {
         public OutputStream rawOutput;
         public BufferedReader reader;
         public int cid;
+        public byte[] ip;
 
         public int connectionStatus;
 
@@ -66,14 +71,13 @@ public class TestClient {
 
         public void run() {
             try {
-                String s = reader.readLine();
-                String request = s;
+                String request = reader.readLine();
                 while (reader.readLine().length() != 0) {
                 }
                 request = request.replace("CONNECT ", "").replace(" HTTP/1.1", "");
                 String[] split = request.split(":");
                 String host = split[0];
-                int port = Integer.parseInt(split[1]);
+                final int port = Integer.parseInt(split[1]);
                 System.out.println(host + ", " + port);
 
                 cid = id++;
@@ -82,14 +86,25 @@ public class TestClient {
 
                 rThreads[cid] = this;
 
-                tunnel.tcp.createConnection(InetAddress.getByName(host).getAddress(), port, cid);
+                tunnel.dns.lookup(host, new DNSCallback() {
+                    @Override
+                    public void action(int status, String hostname, byte[] ip) {
+                        ReadThread.this.ip = ip;
+                    }
+                });
+
+                while(ip == null) {
+                    Thread.sleep(50);
+                }
+
+                tunnel.tcp.createConnection(ip, port, cid);
 
                 while (connectionStatus == 0) {
                     Thread.sleep(50);
                 }
 
                 if (connectionStatus != 1) {
-                    rawOutput.write("HTTP/1.1 502 Bad Fucking Gateway\r\n\r\n".getBytes());
+                    rawOutput.write("HTTP/1.1 502 Bad Gateway\r\n\r\n".getBytes());
                     return;
                 }
 

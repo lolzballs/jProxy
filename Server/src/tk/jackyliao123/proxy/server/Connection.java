@@ -1,15 +1,16 @@
 package tk.jackyliao123.proxy.server;
 
-import tk.jackyliao123.nioevent.*;
+import tk.jackyliao123.nioevent.DeathEventHandler;
+import tk.jackyliao123.nioevent.EventProcess;
+import tk.jackyliao123.nioevent.EventProcessor;
+import tk.jackyliao123.nioevent.ReadEventHandler;
 import tk.jackyliao123.proxy.AESCipher;
 import tk.jackyliao123.proxy.Constants;
+import tk.jackyliao123.proxy.server.dns.DNSHandler;
 import tk.jackyliao123.proxy.server.tcp.TCPHandler;
 
 import javax.crypto.SecretKey;
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
@@ -23,6 +24,7 @@ public class Connection {
     private final String username;
     private final AESCipher cipher;
     private final TCPHandler tcp;
+    private final DNSHandler dns;
 
     public Connection(Server server, SocketChannel channel, String username, SecretKey key) throws Exception {
         this.clientDeath = new DeathEventHandler() {
@@ -45,22 +47,29 @@ public class Connection {
         this.username = username;
         this.cipher = new AESCipher(key);
         this.tcp = new TCPHandler(this, processor, client);
+        this.dns = new DNSHandler(this, processor, client);
 
         readPacket();
     }
 
     public boolean sendEncrypted(SocketChannel channel, byte[] data) throws IOException {
-        byte[] encrpyted = cipher.encrypt(data);
-        if (encrpyted == null) {
+        byte[] encrypted = cipher.encrypt(data);
+        if (encrypted == null) {
             return false;
         }
 
-        ByteBuffer send = ByteBuffer.allocate(1 + encrpyted.length);
-        send.put((byte) (encrpyted.length / 16));
-        send.put(encrpyted);
+        ByteBuffer send = ByteBuffer.allocate(1 + encrypted.length);
+        send.put((byte) (encrypted.length / 16));
+        send.put(encrypted);
 
         send.flip();
-        return channel.write(send) == send.capacity();
+
+        // TODO: MAKE MORE EFFICENT
+        int written = 0;
+        while (send.hasRemaining()) {
+            written += channel.write(send);
+        }
+        return written == send.capacity();
     }
 
     private void readPacket() throws IOException {
@@ -93,6 +102,9 @@ public class Connection {
                         tcp.send(data);
                         break;
                     case Constants.TYPE_UDP:
+                        break;
+                    case Constants.TYPE_DNS:
+                        dns.lookup(data);
                         break;
                 }
 
