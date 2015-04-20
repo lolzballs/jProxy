@@ -3,6 +3,7 @@ package tk.jackyliao123.proxy;
 import javax.crypto.*;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 
 public class AESCipher {
     private final Cipher encrypt;

@@ -13,6 +13,7 @@ import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.util.Arrays;
 
 public class Connection {
     public final DeathEventHandler clientDeath;
@@ -52,7 +53,9 @@ public class Connection {
         readPacket();
     }
 
-    public boolean sendEncrypted(SocketChannel channel, byte[] data) throws IOException {
+    int test = 0;
+
+    public synchronized boolean sendEncrypted(SocketChannel channel, byte[] data) throws IOException {
         byte[] encrypted = cipher.encrypt(data);
         if (encrypted == null) {
             return false;
@@ -63,6 +66,8 @@ public class Connection {
         send.put(encrypted);
 
         send.flip();
+
+        test++;
 
         // TODO: MAKE MORE EFFICENT
         int written = 0;

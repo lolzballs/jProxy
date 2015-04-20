@@ -44,7 +44,7 @@ public class Tunnel {
         this.dns = new DNSTunnel(this);
     }
 
-    public boolean sendEncrypted(byte[] data) throws IOException {
+    public synchronized boolean sendEncrypted(byte[] data) throws IOException {
         byte[] encrypted = cipher.encrypt(data);
         if (encrypted == null) {
             return false;
