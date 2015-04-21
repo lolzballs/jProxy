@@ -6,11 +6,16 @@ import tk.jackyliao123.nioevent.EventProcessor;
 import tk.jackyliao123.nioevent.ReadEventHandler;
 import tk.jackyliao123.proxy.AESCipher;
 import tk.jackyliao123.proxy.Constants;
+import tk.jackyliao123.proxy.client.tcp.TCPCallback;
+import tk.jackyliao123.proxy.client.tcp.TCPTunnel;
+import tk.jackyliao123.proxy.client.udp.UDPCallback;
+import tk.jackyliao123.proxy.client.udp.UDPTunnel;
 
 import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.channels.ByteChannel;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 
@@ -21,9 +26,10 @@ public class Tunnel {
     private final DeathEventHandler death;
 
     public final TCPTunnel tcp;
+    public final UDPTunnel udp;
     public final DNSTunnel dns;
 
-    public Tunnel(InetSocketAddress address, String username, byte[] password, TCPCallback tcpcallback) throws Exception {
+    public Tunnel(InetSocketAddress address, String username, byte[] password, TCPCallback tcpcallback, UDPCallback udpcallback) throws Exception {
         this.server = SocketChannel.open(address);
 
         // Connect and Authenticate
@@ -41,6 +47,7 @@ public class Tunnel {
         };
 
         this.tcp = new TCPTunnel(this, tcpcallback);
+        this.udp = new UDPTunnel(this, udpcallback);
         this.dns = new DNSTunnel(this);
     }
 
@@ -67,7 +74,7 @@ public class Tunnel {
     private void readPacket() throws IOException {
         processor.register(server, 1, new ReadEventHandler() {
             @Override
-            public void action(EventProcess process, SocketChannel channel, byte[] bytes) throws IOException {
+            public void action(EventProcess process, ByteChannel channel, byte[] bytes) throws IOException {
                 readEncrypted(bytes[0]);
             }
         }, death);
@@ -77,7 +84,7 @@ public class Tunnel {
         System.out.println(size * 16);
         processor.register(server, size * 16, new ReadEventHandler() {
             @Override
-            public void action(EventProcess event, SocketChannel channel, byte[] bytes) throws IOException {
+            public void action(EventProcess event, ByteChannel channel, byte[] bytes) throws IOException {
                 byte[] data = cipher.decrypt(bytes);
 
                 if (data == null) {
@@ -96,6 +103,7 @@ public class Tunnel {
                         tcp.read(data);
                         break;
                     case Constants.TYPE_UDP:
+                        udp.read(data);
                         break;
                     case Constants.TYPE_PING:
                         break;

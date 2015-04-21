@@ -11,6 +11,8 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.ByteChannel;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.SocketChannel;
 import java.security.*;
 import java.security.spec.X509EncodedKeySpec;
@@ -35,7 +37,7 @@ public class Authenticator {
 
         processor.register(channel, 2, new ReadEventHandler() {
             @Override
-            public void action(EventProcess event, SocketChannel channel, byte[] bytes) throws IOException {
+            public void action(EventProcess event, ByteChannel channel, byte[] bytes) throws IOException {
                 getUsernameLength(bytes);
             }
         });
@@ -61,7 +63,7 @@ public class Authenticator {
 
                 processor.register(channel, Constants.RSA_PUBLICKEYSIZE_BYTES, new ReadEventHandler() {
                     @Override
-                    public void action(EventProcess event, SocketChannel channel, byte[] bytes) throws IOException {
+                    public void action(EventProcess event, ByteChannel channel, byte[] bytes) throws IOException {
                         try {
                             PublicKey clientPublic = KeyFactory.getInstance(Constants.RSA_ALGORITHM).generatePublic(new X509EncodedKeySpec(bytes));
 
@@ -76,7 +78,7 @@ public class Authenticator {
                             byte[] array = cipher.doFinal(key.getEncoded());
                             channel.write(ByteBuffer.wrap(array));
 
-                            server.connections.add(new Connection(server, channel, username, key));
+                            server.connections.add(new Connection(server, (SocketChannel) channel, username, key));
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -94,7 +96,7 @@ public class Authenticator {
     private void getHashedPassword() throws IOException {
         processor.register(channel, Constants.HASH_SIZE, new ReadEventHandler() {
             @Override
-            public void action(EventProcess event, SocketChannel channel, byte[] bytes) throws IOException {
+            public void action(EventProcess event, ByteChannel channel, byte[] bytes) throws IOException {
                 authenticate(bytes);
             }
         });
@@ -107,7 +109,7 @@ public class Authenticator {
 
         processor.register(channel, usernameLength, new ReadEventHandler() {
             @Override
-            public void action(EventProcess event, SocketChannel channel, byte[] bytes) throws IOException {
+            public void action(EventProcess event, ByteChannel channel, byte[] bytes) throws IOException {
                 getUsername(bytes);
                 if (!userData.userExists(username)) {
                     // Fake connection to prevent people knowing username is false

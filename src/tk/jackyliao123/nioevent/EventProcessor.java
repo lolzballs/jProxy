@@ -48,7 +48,7 @@ public class EventProcessor {
                     read(key);
                 } catch (IOException e) {
                     e.printStackTrace();
-                    killConnection((SocketChannel) key.channel());
+                    killConnection((AbstractSelectableChannel) key.channel());
                 }
 
                 keyIterator.remove();
@@ -105,8 +105,9 @@ public class EventProcessor {
         }
     }
 
+    @SuppressWarnings("SuspiciousMethodCalls")
     private void read(SelectionKey key) throws IOException {
-        SocketChannel channel = (SocketChannel) key.channel();
+        ByteChannel channel = (ByteChannel) key.channel();
         EventProcess event = channels.get(channel);
 
         ByteBuffer buffer = event.buffer;
@@ -116,7 +117,7 @@ public class EventProcessor {
 
         if (read == -1) {
             System.out.print("Closed socket! ");
-            killConnection((SocketChannel) key.channel());
+            killConnection((AbstractSelectableChannel) key.channel());
             key.cancel();
             return;
         }
@@ -150,19 +151,19 @@ public class EventProcessor {
         waitForConnect.put(channel, new ConnectionProcess(handler, System.nanoTime(), timeout));
     }
 
-    public void register(int id, AbstractSelectableChannel channel, ReadEventHandler read) throws IOException {
-        register(id, channel, read, new DeathEventHandler() {
+    public void register(Object info, AbstractSelectableChannel channel, ReadEventHandler read) throws IOException {
+        register(info, channel, read, new DeathEventHandler() {
             @Override
             public void action(EventProcess event) throws IOException {
             }
         }, DEFAULT_TIMEOUT);
     }
 
-    public void register(int id, AbstractSelectableChannel channel, ReadEventHandler read, DeathEventHandler death) throws IOException {
-        register(id, channel, read, death, DEFAULT_TIMEOUT);
+    public void register(Object info, AbstractSelectableChannel channel, ReadEventHandler read, DeathEventHandler death) throws IOException {
+        register(info, channel, read, death, DEFAULT_TIMEOUT);
     }
 
-    public void register(int id, AbstractSelectableChannel channel, ReadEventHandler read, DeathEventHandler death, long timeout) throws IOException {
+    public void register(Object info, AbstractSelectableChannel channel, ReadEventHandler read, DeathEventHandler death, long timeout) throws IOException {
         channel.configureBlocking(false);
         EventProcess entry = channels.get(channel);
         if (entry != null) {
@@ -170,13 +171,13 @@ public class EventProcessor {
             entry.read = read;
             entry.death = death;
             entry.notifyOnRead = true;
-            entry.id = id;
+            entry.info = info;
             entry.lastTime = System.nanoTime();
             entry.key.interestOps(SelectionKey.OP_READ);
             return;
         }
         SelectionKey key = channel.register(selector, SelectionKey.OP_READ);
-        EventProcess event = new EventProcess(key, read, death, ByteBuffer.allocate(Constants.MAX_MTU), true, timeout, id);
+        EventProcess event = new EventProcess(key, read, death, ByteBuffer.allocate(Constants.MAX_MTU), true, timeout, info);
         event.lastTime = System.nanoTime();
         channels.put(channel, event);
     }
@@ -240,37 +241,37 @@ public class EventProcessor {
         channels.put(channel, event);
     }
 
-    public void register(int id, AbstractSelectableChannel channel, int bytesToRead, ReadEventHandler read) throws IOException {
-        register(id, channel, bytesToRead, read, new DeathEventHandler() {
+    public void register(Object info, AbstractSelectableChannel channel, int bytesToRead, ReadEventHandler read) throws IOException {
+        register(info, channel, bytesToRead, read, new DeathEventHandler() {
             @Override
             public void action(EventProcess event) throws IOException {
             }
         });
     }
 
-    public void register(int id, AbstractSelectableChannel channel, int bytesToRead, ReadEventHandler read, DeathEventHandler death) throws IOException {
-        register(id, channel, bytesToRead, read, death, DEFAULT_TIMEOUT);
+    public void register(Object info, AbstractSelectableChannel channel, int bytesToRead, ReadEventHandler read, DeathEventHandler death) throws IOException {
+        register(info, channel, bytesToRead, read, death, DEFAULT_TIMEOUT);
     }
 
-    public void register(int id, AbstractSelectableChannel channel, int bytesToRead, ReadEventHandler read, DeathEventHandler death, long timeout) throws IOException {
+    public void register(Object info, AbstractSelectableChannel channel, int bytesToRead, ReadEventHandler read, DeathEventHandler death, long timeout) throws IOException {
         channel.configureBlocking(false);
         EventProcess entry = channels.get(channel);
         if (entry != null) {
             entry.buffer = ByteBuffer.allocate(bytesToRead);
             entry.read = read;
             entry.death = death;
-            entry.id = id;
+            entry.info = info;
             entry.lastTime = System.nanoTime();
             entry.key.interestOps(SelectionKey.OP_READ);
             return;
         }
         SelectionKey key = channel.register(selector, SelectionKey.OP_READ);
-        EventProcess event = new EventProcess(key, read, death, ByteBuffer.allocate(bytesToRead), false, timeout, id);
+        EventProcess event = new EventProcess(key, read, death, ByteBuffer.allocate(bytesToRead), false, timeout, info);
         event.lastTime = System.nanoTime();
         channels.put(channel, event);
     }
 
-    public void deleteEventListener(SocketChannel channel) {
+    public void deleteEventListener(AbstractSelectableChannel channel) {
         EventProcess process = channels.get(channel);
         process.key.cancel();
         channels.remove(channel);

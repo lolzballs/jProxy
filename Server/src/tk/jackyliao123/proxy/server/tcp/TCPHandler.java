@@ -12,6 +12,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
+import java.nio.channels.ByteChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.AbstractSelectableChannel;
 import java.util.HashMap;
@@ -95,7 +96,7 @@ public class TCPHandler {
         }
         processor.register(id, connections[id].socket, new ReadEventHandler() {
             @Override
-            public void action(EventProcess process, SocketChannel channel, byte[] bytes) throws IOException {
+            public void action(EventProcess process, ByteChannel channel, byte[] bytes) throws IOException {
                 byte[] data = new byte[bytes.length + 5];
                 data[0] = Constants.TYPE_TCP;
                 data[1] = (byte) (id >>> 8);

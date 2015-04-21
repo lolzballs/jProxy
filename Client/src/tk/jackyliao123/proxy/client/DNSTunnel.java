@@ -28,7 +28,7 @@ public class DNSTunnel {
         System.out.println(hostname);
 
         ArrayList<DNSCallback> ar = callbacks.get(hostname);
-        if(ar == null){
+        if (ar == null) {
             callbacks.put(hostname, ar = new ArrayList<DNSCallback>());
         }
         ar.add(callback);
@@ -61,8 +61,8 @@ public class DNSTunnel {
 
         System.out.println("found: " + hostname);
         ArrayList<DNSCallback> ar = callbacks.remove(hostname);
-        if(ar != null){
-            for(DNSCallback cb : ar){
+        if (ar != null) {
+            for (DNSCallback cb : ar) {
                 cb.action(status, hostname, ip);
             }
         }

@@ -11,10 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
+import java.nio.channels.*;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -60,21 +57,21 @@ public class Server {
             SelectionKey key = keyIterator.next();
 
             if (!key.isValid()) {
+                keyIterator.remove();
                 continue;
             }
 
             if (key.isAcceptable()) {
                 SocketChannel client = channel.accept();
                 processor.register(client, 8, new ReadEventHandler() {
-                    public void action(EventProcess event, SocketChannel channel, byte[] bytes) throws IOException {
-                        handshake(channel, bytes);
+                    public void action(EventProcess event, ByteChannel channel, byte[] bytes) throws IOException {
+                        handshake((SocketChannel) channel, bytes);
                     }
                 });
             }
 
             keyIterator.remove();
         }
-        selector.selectedKeys().clear();
     }
 
     private void handshake(SocketChannel channel, byte[] bytes) throws IOException {

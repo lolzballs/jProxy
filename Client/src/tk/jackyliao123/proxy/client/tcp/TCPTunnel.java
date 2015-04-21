@@ -1,6 +1,7 @@
-package tk.jackyliao123.proxy.client;
+package tk.jackyliao123.proxy.client.tcp;
 
 import tk.jackyliao123.proxy.Constants;
+import tk.jackyliao123.proxy.client.Tunnel;
 
 import java.io.IOException;
 

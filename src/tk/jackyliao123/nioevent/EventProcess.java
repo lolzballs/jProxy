@@ -2,6 +2,7 @@ package tk.jackyliao123.nioevent;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
+import java.util.Objects;
 
 public class EventProcess {
     public SelectionKey key;
@@ -11,7 +12,7 @@ public class EventProcess {
     public boolean notifyOnRead;
     public long lastTime;
     public final long timeout;
-    public int id;
+    public Object info;
 
     public EventProcess(SelectionKey key, ReadEventHandler read, DeathEventHandler death, ByteBuffer buffer, boolean notifyOnRead, long timeout) {
         this.key = key;
@@ -20,16 +21,16 @@ public class EventProcess {
         this.buffer = buffer;
         this.notifyOnRead = notifyOnRead;
         this.timeout = timeout;
-        this.id = -1;
+        this.info = null;
     }
 
-    public EventProcess(SelectionKey key, ReadEventHandler read, DeathEventHandler death, ByteBuffer buffer, boolean notifyOnRead, long timeout, int id) {
+    public EventProcess(SelectionKey key, ReadEventHandler read, DeathEventHandler death, ByteBuffer buffer, boolean notifyOnRead, long timeout, Object info) {
         this.key = key;
         this.read = read;
         this.death = death;
         this.buffer = buffer;
         this.notifyOnRead = notifyOnRead;
         this.timeout = timeout;
-        this.id = id;
+        this.info = info;
     }
 }

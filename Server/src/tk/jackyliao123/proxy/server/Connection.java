@@ -8,12 +8,13 @@ import tk.jackyliao123.proxy.AESCipher;
 import tk.jackyliao123.proxy.Constants;
 import tk.jackyliao123.proxy.server.dns.DNSHandler;
 import tk.jackyliao123.proxy.server.tcp.TCPHandler;
+import tk.jackyliao123.proxy.server.udp.UDPHandler;
 
 import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.ByteChannel;
 import java.nio.channels.SocketChannel;
-import java.util.Arrays;
 
 public class Connection {
     public final DeathEventHandler clientDeath;
@@ -25,6 +26,7 @@ public class Connection {
     private final String username;
     private final AESCipher cipher;
     private final TCPHandler tcp;
+    private final UDPHandler udp;
     private final DNSHandler dns;
 
     public Connection(Server server, SocketChannel channel, String username, SecretKey key) throws Exception {
@@ -38,7 +40,7 @@ public class Connection {
         this.connectionDeath = new DeathEventHandler() {
             @Override
             public void action(EventProcess event) throws IOException {
-                tcp.death(event.id);
+                tcp.death((Integer) event.info);
             }
         };
 
@@ -48,12 +50,11 @@ public class Connection {
         this.username = username;
         this.cipher = new AESCipher(key);
         this.tcp = new TCPHandler(this, processor, client);
+        this.udp = new UDPHandler(this, processor, client);
         this.dns = new DNSHandler(this, processor, client);
 
         readPacket();
     }
-
-    int test = 0;
 
     public synchronized boolean sendEncrypted(SocketChannel channel, byte[] data) throws IOException {
         byte[] encrypted = cipher.encrypt(data);
@@ -67,8 +68,6 @@ public class Connection {
 
         send.flip();
 
-        test++;
-
         // TODO: MAKE MORE EFFICENT
         int written = 0;
         while (send.hasRemaining()) {
@@ -80,7 +79,7 @@ public class Connection {
     private void readPacket() throws IOException {
         server.processor.register(client, 1, new ReadEventHandler() {
             @Override
-            public void action(EventProcess event, SocketChannel channel, byte[] bytes) throws IOException {
+            public void action(EventProcess event, ByteChannel channel, byte[] bytes) throws IOException {
                 readEncrypted(bytes[0] & 0xFF);
             }
         }, clientDeath);
@@ -89,7 +88,7 @@ public class Connection {
     private void readEncrypted(int size) throws IOException {
         server.processor.register(client, size * 16, new ReadEventHandler() {
             @Override
-            public void action(EventProcess event, SocketChannel channel, byte[] bytes) throws IOException {
+            public void action(EventProcess event, ByteChannel channel, byte[] bytes) throws IOException {
                 byte[] data = cipher.decrypt(bytes);
 
                 if (data == null) {
@@ -107,6 +106,7 @@ public class Connection {
                         tcp.send(data);
                         break;
                     case Constants.TYPE_UDP:
+                        udp.send(data);
                         break;
                     case Constants.TYPE_DNS:
                         dns.lookup(data);
