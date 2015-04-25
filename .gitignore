@@ -2,3 +2,5 @@
 *.iml
 .flooignore
 .floo
+out
+*.class
