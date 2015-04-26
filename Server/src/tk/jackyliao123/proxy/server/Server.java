@@ -21,14 +21,12 @@ public class Server implements AcceptEventListener {
     private ServerSocketChannel serverChannel;
     private EventProcessor processor;
     private Validator validator;
-    private Random random;
     private boolean running;
 
     public Server(int port) throws IOException {
         this.serverChannel = ServerSocketChannel.open();
         this.processor = new EventProcessor();
         this.validator = new Validator(Variables.secretKeyFile);
-        this.random = new SecureRandom();
 
         serverChannel.configureBlocking(false);
         serverChannel.bind(new InetSocketAddress(port));
@@ -38,7 +36,7 @@ public class Server implements AcceptEventListener {
     @Override
     public void onAccept(ChannelWrapper channel) throws IOException {
         processor.fillArrayToMax(channel, Constants.MAGIC_LENGTH + 2, new HandshakeListener());
-        processor.fillArrayToMax(channel, Constants.RSA_PUBLICKEYSIZE_BYTES + Constants.HASH_SIZE, new AuthenticateListener(validator, random));
+        processor.fillArrayToMax(channel, Constants.RSA_PUBLICKEYSIZE_BYTES + Constants.HASH_SIZE, new AuthenticateListener(validator));
 
     }
 

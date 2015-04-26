@@ -6,6 +6,8 @@ import tk.jackyliao123.proxy.event.ReadEventListener;
 import tk.jackyliao123.proxy.server.Validator;
 
 import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.security.GeneralSecurityException;
@@ -16,11 +18,9 @@ import java.util.Random;
 
 public class AuthenticateListener implements ReadEventListener {
     private Validator validator;
-    private Random random;
 
-    public AuthenticateListener(Validator validator, Random random) {
+    public AuthenticateListener(Validator validator) {
         this.validator = validator;
-        this.random = random;
     }
 
     public void sendAccepted(ChannelWrapper channel, PublicKey clientKey, byte[] aesKey) throws IOException {
@@ -62,8 +62,8 @@ public class AuthenticateListener implements ReadEventListener {
         try {
             PublicKey clientKey = KeyFactory.getInstance(Constants.RSA_ALGORITHM).generatePublic(new X509EncodedKeySpec(rsaKey));
 
-            byte[] aesKey = new byte[Constants.AES_KEYSIZE_BYTES];
-            random.nextBytes(aesKey);
+            SecretKey key = KeyGenerator.getInstance(Constants.AES_ALGORITHM).generateKey();
+            byte[] aesKey = key.getEncoded();
             sendAccepted(channel, clientKey, aesKey);
         } catch (GeneralSecurityException e) {
             throw new IOException(e);
