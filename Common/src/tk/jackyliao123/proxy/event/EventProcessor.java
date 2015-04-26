@@ -26,10 +26,6 @@ public class EventProcessor {
         channel.pushDumpReadBuffer(listener);
     }
 
-    public void writeArray(ChannelWrapper channel) throws IOException {
-
-    }
-
     public Selector getSelector() {
         return selector;
     }
@@ -112,7 +108,6 @@ public class EventProcessor {
             }
             keys.remove();
         }
-        System.out.println("Iterate");
     }
 
     public void registerServerChannel(ServerSocketChannel channel, AcceptEventListener listener) throws IOException {
@@ -120,7 +115,6 @@ public class EventProcessor {
     }
 
     public void kill(ChannelWrapper channel) {
-        //TODO: KILL CONNECTION
         try {
             channel.close();
         } catch (IOException e) {
