@@ -9,9 +9,13 @@ public class Variables {
     public static int serverPort;
     public static File secretKeyFile;
     public static MessageDigest hashAlgorithm;
+    public static long timeout;
+//    public static
 
     public static void loadAllVariables(String[] args) throws Exception {
-        serverPort = 443;
+        // TODO: Read from args + config files
+        timeout = 60000;
+        serverPort = 16384;
         secretKeyFile = new File("keys.dat");
         hashAlgorithm = MessageDigest.getInstance(Constants.HASH_ALGORITHM);
     }

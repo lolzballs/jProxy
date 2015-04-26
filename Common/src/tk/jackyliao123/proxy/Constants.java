@@ -5,14 +5,15 @@ public class Constants {
     public static final byte[] MAGIC = new byte[]{'j', 'P', 'r', 'o', 'x', 'y'};
     public static final byte MAJOR = 2;
     public static final byte MINOR = 0;
+    public static final int MAGIC_LENGTH = MAGIC.length;
 
     // Initalization return codes
     public static final byte INIT_SUCCESSFUL = 0;
     public static final byte INIT_UNSUPPORTEDVERSION = 1;
 
     // Login return codes
-    public static final byte LOGIN_SUCCESSFUL = 0;
-    public static final byte LOGIN_INVALIDCOMBO = 1;
+    public static final byte LOGIN_ACCEPTED = 0;
+    public static final byte LOGIN_INVALIDKEY = 1;
 
     // Send packet
     public static final byte TYPE_PING = 0x00;

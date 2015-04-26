@@ -4,7 +4,6 @@ import tk.jackyliao123.proxy.Constants;
 import tk.jackyliao123.proxy.Util;
 
 import java.io.*;
-import java.util.ArrayList;
 
 public class Validator {
     private final File file;
@@ -13,12 +12,13 @@ public class Validator {
         this.file = f;
     }
 
-    public boolean isValid(byte[] publicKey, byte[] hash) {
+    public String isValid(byte[] publicKey, byte[] hash) {
         byte[] secretSalt = new byte[Constants.SECRET_SALT_SIZE];
         byte[] array = new byte[Constants.RSA_PUBLICKEYSIZE_BYTES + Constants.SECRET_SALT_SIZE];
         try {
             DataInputStream input = new DataInputStream(new FileInputStream(file));
             while (true) {
+                String user = input.readUTF();
                 input.readFully(secretSalt, 0, Constants.SECRET_SALT_SIZE);
                 System.arraycopy(publicKey, 0, array, 0, Constants.RSA_PUBLICKEYSIZE_BYTES);
                 System.arraycopy(secretSalt, 0, array, Constants.RSA_PUBLICKEYSIZE_BYTES, Constants.SECRET_SALT_SIZE);
@@ -27,16 +27,10 @@ public class Validator {
                     System.err.println("Hash length mismatch: received " + hash.length + " bytes, generated " + newHash.length + " bytes, expected " + Constants.HASH_SIZE + " bytes");
                     continue;
                 }
-                boolean equals = true;
-                for (int i = 0; i < hash.length; ++i) {
-                    if (newHash[i] != hash[i]) {
-                        System.err.println("Invalid hash received: " + Util.toString(hash) + "\nShould be: " + Util.toString(hash));
-                        equals = false;
-                        break;
-                    }
-                }
-                if (equals) {
-                    return true;
+                if (Util.bseq(hash, newHash)) {
+                    return user;
+                } else {
+                    System.err.println("Invalid hash received: " + Util.toString(hash));
                 }
             }
         } catch (EOFException ignored) {
@@ -51,6 +45,6 @@ public class Validator {
             }
         }
         System.err.println("No match for received hash found: " + Util.toString(hash));
-        return false;
+        return null;
     }
 }

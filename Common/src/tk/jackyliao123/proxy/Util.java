@@ -20,4 +20,20 @@ public class Util {
         }
         return sb.toString();
     }
+
+    public static boolean bseq(byte[] b1, byte[] b2) {
+        return bseq(b1, 0, b1.length, b2, 0, b2.length);
+    }
+
+    public static boolean bseq(byte[] b1, int off1, int len1, byte[] b2, int off2, int len2) {
+        if (len1 != len2) {
+            return false;
+        }
+        for (int i = 0; i < len1; ++i) {
+            if (b1[i + off1] != b2[i + off2]) {
+                return false;
+            }
+        }
+        return true;
+    }
 }
