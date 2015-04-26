@@ -31,8 +31,6 @@ The handshake stage is a crucial part of the jProxy protocol. This lets the serv
 | s |      1 | Client Major Version                                                                |
 | s |      1 | Client Minor Version                                                                |
 | r |      6 | Magic Value "jProxy"                                                                |
-| r |      1 | Server Major Version                                                                |
-| r |      1 | Server Minor Version                                                                |
 | r |      1 | Status (0=Accepted, 1=Version Mismatch)                                             |
 
 If *No Error* proceed to Login stage.
