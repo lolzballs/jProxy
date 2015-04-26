@@ -47,8 +47,7 @@ In this stage, the client and server also exchange RSA and AES keys, giving encr
 | s |    296 | 2048-bit RSA Client PUBLIC Key                                                      |
 | s |     32 | Hash of Client PUBLIC Key with Shared Secret Salt                                   |
 | r |      1 | Status (0=Accepted, 1=Invalid Key)                                                  |
-| r |    128 | 1024-bit AES Key (encrypted with Client PUBLIC Key)                                 |
-
+| r |    256 | 1024-bit AES Key encrypted with Client PUBLIC Key (if status is accepted)           |
 
 
 ## Data Tunnelling
