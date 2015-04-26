@@ -21,10 +21,14 @@ public class Tunnel {
         this.processor = new EventProcessor();
         this.cipher = init(secretKey);
 
+        System.out.println("Connected Successfully");
+
         serverConnection.configureBlocking(false);
     }
 
     private AESCipher init(byte[] secretKey) throws IOException {
+        serverConnection.configureBlocking(true);
+
         ByteBuffer handshake = ByteBuffer.allocate(Constants.MAGIC_LENGTH + 2);
         handshake.put(Constants.MAGIC);
         handshake.put(Constants.MAJOR);
@@ -52,7 +56,9 @@ public class Tunnel {
         }
 
         try {
-            KeyPair rsaPair = KeyPairGenerator.getInstance(Constants.RSA_ALGORITHM).generateKeyPair();
+            KeyPairGenerator generator = KeyPairGenerator.getInstance(Constants.RSA_ALGORITHM);
+            generator.initialize(Constants.RSA_KEYSIZE);
+            KeyPair rsaPair = generator.generateKeyPair();
             Cipher decrypt = Cipher.getInstance(Constants.RSA_ALGORITHM);
             decrypt.init(Cipher.DECRYPT_MODE, rsaPair.getPrivate());
             byte[] encoded = rsaPair.getPublic().getEncoded();

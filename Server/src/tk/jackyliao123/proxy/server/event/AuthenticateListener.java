@@ -62,7 +62,9 @@ public class AuthenticateListener implements ReadEventListener {
         try {
             PublicKey clientKey = KeyFactory.getInstance(Constants.RSA_ALGORITHM).generatePublic(new X509EncodedKeySpec(rsaKey));
 
-            SecretKey key = KeyGenerator.getInstance(Constants.AES_ALGORITHM).generateKey();
+            KeyGenerator generator = KeyGenerator.getInstance(Constants.AES_ALGORITHM);
+            generator.init(Constants.AES_KEYSIZE);
+            SecretKey key = generator.generateKey();
             byte[] aesKey = key.getEncoded();
             sendAccepted(channel, clientKey, aesKey);
         } catch (GeneralSecurityException e) {

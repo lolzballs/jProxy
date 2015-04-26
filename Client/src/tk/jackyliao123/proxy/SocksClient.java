@@ -12,5 +12,6 @@ public class SocksClient {
 
     public static void main(String[] args) throws Exception {
         Variables.loadAllVariables(args);
+        new SocksClient(new byte[Constants.SECRET_SALT_SIZE]);
     }
 }
