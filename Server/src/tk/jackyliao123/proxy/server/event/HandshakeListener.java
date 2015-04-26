@@ -10,10 +10,8 @@ import java.nio.ByteBuffer;
 
 public class HandshakeListener implements ReadEventListener {
     public void sendResponse(ChannelWrapper channel, byte responseCode) {
-        ByteBuffer b = ByteBuffer.allocate(9);
+        ByteBuffer b = ByteBuffer.allocate(7);
         b.put(Constants.MAGIC);
-        b.put(Constants.MAJOR);
-        b.put(Constants.MINOR);
         b.put(responseCode);
         channel.pushWriteBuffer((ByteBuffer) b.flip());
     }

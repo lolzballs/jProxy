@@ -39,6 +39,7 @@ public class Server implements AcceptEventListener {
     public void onAccept(ChannelWrapper channel) throws IOException {
         processor.fillArrayToMax(channel, Constants.MAGIC_LENGTH + 2, new HandshakeListener());
         processor.fillArrayToMax(channel, Constants.RSA_PUBLICKEYSIZE_BYTES + Constants.HASH_SIZE, new AuthenticateListener(validator, random));
+
     }
 
     public void start() {
