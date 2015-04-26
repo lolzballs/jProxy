@@ -20,6 +20,8 @@ public class Tunnel {
         this.serverConnection = SocketChannel.open(Variables.serverAddress);
         this.processor = new EventProcessor();
         this.cipher = init(secretKey);
+
+        serverConnection.configureBlocking(false);
     }
 
     private AESCipher init(byte[] secretKey) throws IOException {
