@@ -15,9 +15,6 @@ public class Constants {
     public static final byte LOGIN_ACCEPTED = 0;
     public static final byte LOGIN_INVALIDKEY = 1;
 
-    //Connections
-    public static final byte ICMP_PING = 0x00;
-
     public static final byte TCP_CONNECT = 0x01;
     public static final byte TCP_PACKET = 0x21;
     public static final byte TCP_DISCONNECT = 0x41;
