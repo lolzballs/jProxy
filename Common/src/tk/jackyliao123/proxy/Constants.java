@@ -15,11 +15,6 @@ public class Constants {
     public static final byte LOGIN_ACCEPTED = 0;
     public static final byte LOGIN_INVALIDKEY = 1;
 
-    // Send packet
-    public static final byte TYPE_PING = 0x00;
-    public static final byte TYPE_TCP = 0x01;
-    public static final byte TYPE_UDP = 0x02;
-
     //Connections
     public static final byte ICMP_PING = 0x00;
 

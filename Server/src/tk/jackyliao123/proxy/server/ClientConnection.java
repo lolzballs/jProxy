@@ -1,11 +1,11 @@
 package tk.jackyliao123.proxy.server;
 
 import tk.jackyliao123.proxy.ChannelWrapper;
+import tk.jackyliao123.proxy.Constants;
+import tk.jackyliao123.proxy.Util;
 import tk.jackyliao123.proxy.cipher.AESCipher;
 import tk.jackyliao123.proxy.server.event.EncryptedPacketLengthListener;
 import tk.jackyliao123.proxy.server.event.EncryptedPacketListener;
-
-import java.util.Arrays;
 
 public class ClientConnection {
     private Server server;
@@ -25,6 +25,15 @@ public class ClientConnection {
     }
 
     public void processPacket(byte[] data) {
-        System.out.println(Arrays.toString(data));
+        System.out.println(Util.bs2str(data));
+
+        switch(data[0]) {
+            case Constants.TCP_CONNECT:
+                break;
+            case Constants.TCP_PACKET:
+                break;
+            case Constants.TCP_DISCONNECT:
+                break;
+        }
     }
 }

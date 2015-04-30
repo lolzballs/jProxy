@@ -30,7 +30,7 @@ public class Validator {
                 if (Util.bseq(hash, newHash)) {
                     return user;
                 } else {
-                    System.err.println("Invalid hash received: " + Util.toString(hash));
+                    System.err.println("Invalid hash received: " + Util.bs2str(hash));
                 }
             }
         } catch (EOFException ignored) {
@@ -44,7 +44,7 @@ public class Validator {
                 array[i] = 0;
             }
         }
-        System.err.println("No match for received hash found: " + Util.toString(hash));
+        System.err.println("No match for received hash found: " + Util.bs2str(hash));
         return null;
     }
 }

@@ -13,7 +13,7 @@ public class Util {
         return (b[offset] << 8) + (b[offset + 1] & 0xFF);
     }
 
-    public static String toString(byte[] b) {
+    public static String bs2str(byte[] b) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < b.length; ++i) {
             sb.append(Integer.toHexString(b[i] & 0xFF).toUpperCase());
