@@ -2,8 +2,10 @@ package tk.jackyliao123.proxy.server.event;
 
 import tk.jackyliao123.proxy.ChannelWrapper;
 import tk.jackyliao123.proxy.Constants;
+import tk.jackyliao123.proxy.cipher.AESCipher;
 import tk.jackyliao123.proxy.event.ReadEventListener;
-import tk.jackyliao123.proxy.server.Validator;
+import tk.jackyliao123.proxy.server.ClientConnection;
+import tk.jackyliao123.proxy.server.Server;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
@@ -14,13 +16,12 @@ import java.security.GeneralSecurityException;
 import java.security.KeyFactory;
 import java.security.PublicKey;
 import java.security.spec.X509EncodedKeySpec;
-import java.util.Random;
 
 public class AuthenticateListener implements ReadEventListener {
-    private Validator validator;
+    public final Server server;
 
-    public AuthenticateListener(Validator validator) {
-        this.validator = validator;
+    public AuthenticateListener(Server server) {
+        this.server = server;
     }
 
     public void sendAccepted(ChannelWrapper channel, PublicKey clientKey, byte[] aesKey) throws IOException {
@@ -53,7 +54,7 @@ public class AuthenticateListener implements ReadEventListener {
         byte[] hash = new byte[Constants.HASH_SIZE];
         System.arraycopy(array, Constants.RSA_PUBLICKEYSIZE_BYTES, hash, 0, Constants.HASH_SIZE);
 
-        String user = validator.isValid(rsaKey, hash);
+        String user = server.validator.isValid(rsaKey, hash);
         if (user == null) {
             sendInvalid(channel);
             return;
@@ -67,6 +68,10 @@ public class AuthenticateListener implements ReadEventListener {
             SecretKey key = generator.generateKey();
             byte[] aesKey = key.getEncoded();
             sendAccepted(channel, clientKey, aesKey);
+
+            ClientConnection connection = new ClientConnection(server, channel, new AESCipher(key));
+            server.connections.put(user, connection);
+            channel.pushFillReadBuffer(ByteBuffer.allocate(1), connection.packetLengthListener);
         } catch (GeneralSecurityException e) {
             throw new IOException(e);
         }

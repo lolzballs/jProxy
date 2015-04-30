@@ -2,42 +2,47 @@ package tk.jackyliao123.proxy.server;
 
 import tk.jackyliao123.proxy.ChannelWrapper;
 import tk.jackyliao123.proxy.Constants;
-import tk.jackyliao123.proxy.Util;
-import tk.jackyliao123.proxy.event.AcceptEventListener;
-import tk.jackyliao123.proxy.event.EventProcessor;
-import tk.jackyliao123.proxy.event.ReadEventListener;
+import tk.jackyliao123.proxy.event.*;
 import tk.jackyliao123.proxy.server.event.AuthenticateListener;
+import tk.jackyliao123.proxy.server.event.EncryptedPacketLengthListener;
+import tk.jackyliao123.proxy.server.event.EncryptedPacketListener;
 import tk.jackyliao123.proxy.server.event.HandshakeListener;
 
 import java.io.IOException;
-import java.net.Authenticator;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ServerSocketChannel;
-import java.security.SecureRandom;
-import java.util.Random;
+import java.util.HashMap;
 
 public class Server implements AcceptEventListener {
     private ServerSocketChannel serverChannel;
     private EventProcessor processor;
-    private Validator validator;
     private boolean running;
+
+    public Validator validator;
+    public HashMap<String, ClientConnection> connections;
+
+    public HandshakeListener handshakeListener;
+    public AuthenticateListener authenticateListener;
 
     public Server(int port) throws IOException {
         this.serverChannel = ServerSocketChannel.open();
         this.processor = new EventProcessor();
+
         this.validator = new Validator(Variables.secretKeyFile);
+        this.connections = new HashMap<String, ClientConnection>();
+
+        this.handshakeListener = new HandshakeListener(this);
+        this.authenticateListener = new AuthenticateListener(this);
 
         serverChannel.configureBlocking(false);
-        serverChannel.bind(new InetSocketAddress(port));
+        serverChannel.socket().bind(new InetSocketAddress(port));
         processor.registerServerChannel(serverChannel, this);
     }
 
     @Override
     public void onAccept(ChannelWrapper channel) throws IOException {
-        processor.fillArrayToMax(channel, Constants.MAGIC_LENGTH + 2, new HandshakeListener());
-        processor.fillArrayToMax(channel, Constants.RSA_PUBLICKEYSIZE_BYTES + Constants.HASH_SIZE, new AuthenticateListener(validator));
-
+        channel.pushFillReadBuffer(ByteBuffer.allocate(Constants.MAGIC_LENGTH + 2), handshakeListener);
     }
 
     public void start() {

@@ -18,14 +18,6 @@ public class EventProcessor {
         this.selector = Selector.open();
     }
 
-    public void fillArrayToMax(ChannelWrapper channel, int arraySize, ReadEventListener listener) throws IOException {
-        channel.pushFillReadBuffer(ByteBuffer.allocate(arraySize), listener);
-    }
-
-    public void fillArray(ChannelWrapper channel, ReadEventListener listener) throws IOException {
-        channel.pushDumpReadBuffer(listener);
-    }
-
     public Selector getSelector() {
         return selector;
     }
