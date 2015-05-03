@@ -13,6 +13,13 @@ public class Util {
         return (b[offset] << 8) + (b[offset + 1] & 0xFF);
     }
 
+    public static byte[] us2bs(int n) {
+        if (n >= 65536) {
+            System.err.println("Error: unsigned short out of range: " + n);
+        }
+        return new byte[]{(byte) (n >>> 8), (byte) (n & 0xFF)};
+    }
+
     public static String bs2str(byte[] b) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < b.length; ++i) {
@@ -36,4 +43,6 @@ public class Util {
         }
         return true;
     }
+
+
 }

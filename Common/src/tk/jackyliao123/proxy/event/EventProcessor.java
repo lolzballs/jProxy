@@ -94,6 +94,21 @@ public class EventProcessor {
                         ((AcceptEventListener) attachment).onAccept(wrapper);
                     }
                 }
+
+                if (!key.isValid()) {
+                    kill((ChannelWrapper) key.attachment());
+                    continue;
+                }
+
+                if (key.isConnectable()) {
+                    Object attachment = key.attachment();
+                    if (attachment != null && attachment instanceof ChannelWrapper) {
+                        ConnectEventListener listener = ((ChannelWrapper) attachment).connectListener;
+                        if (listener != null) {
+                            listener.onConnect((ChannelWrapper) attachment);
+                        }
+                    }
+                }
             } catch (Exception e) {
                 System.err.println("Event processing has experienced an error on " + key);
                 e.printStackTrace();
@@ -104,6 +119,14 @@ public class EventProcessor {
 
     public void registerServerChannel(ServerSocketChannel channel, AcceptEventListener listener) throws IOException {
         channel.register(selector, SelectionKey.OP_ACCEPT, listener);
+    }
+
+    public ChannelWrapper registerSocketChannel(SocketChannel channel, ConnectEventListener listener) throws IOException {
+        SelectionKey key = channel.register(selector, SelectionKey.OP_CONNECT);
+        ChannelWrapper wrapper = new ChannelWrapper(channel, key);
+        wrapper.connectListener = listener;
+        key.attach(wrapper);
+        return wrapper;
     }
 
     public void kill(ChannelWrapper channel) {

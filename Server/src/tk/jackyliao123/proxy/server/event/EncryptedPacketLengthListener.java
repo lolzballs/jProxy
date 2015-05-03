@@ -4,7 +4,6 @@ import tk.jackyliao123.proxy.ChannelWrapper;
 import tk.jackyliao123.proxy.Util;
 import tk.jackyliao123.proxy.event.ReadEventListener;
 import tk.jackyliao123.proxy.server.ClientConnection;
-import tk.jackyliao123.proxy.server.Server;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

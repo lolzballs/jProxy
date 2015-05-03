@@ -25,12 +25,11 @@ public class Constants {
 
 
     // TCP connection status
-    public static final byte TCP_CONNECTION_UNKNOWN = 2; // When status has not been recieved yet
-    public static final byte TCP_CONNECTION_OK = 1;
-    public static final byte TCP_CONNECTION_OTHER = 0;
-    public static final byte TCP_CONNECTION_REFUSED = -1;
-    public static final byte TCP_CONNECTION_TIMEOUT = -2;
-    public static final byte TCP_CONNECTION_UNREACHABLE = -3;
+    public static final byte TCP_CONNECTION_OK = 0;
+    public static final byte TCP_CONNECTION_GENERAL_FAIL = 1;
+    public static final byte TCP_CONNECTION_REFUSED = 2;
+    public static final byte TCP_CONNECTION_TIMEOUT = 3;
+    public static final byte TCP_CONNECTION_UNREACHABLE = 4;
 
     public static final int MAX_MTU = 1400;
     public static final int MAX_CONNECTIONS = 1024;

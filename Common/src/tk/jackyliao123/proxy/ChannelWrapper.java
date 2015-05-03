@@ -1,5 +1,6 @@
 package tk.jackyliao123.proxy;
 
+import tk.jackyliao123.proxy.event.ConnectEventListener;
 import tk.jackyliao123.proxy.event.DisconnectEventListener;
 import tk.jackyliao123.proxy.event.ReadEventListener;
 
@@ -18,9 +19,12 @@ public class ChannelWrapper {
     private final ArrayDeque<BufferFiller> readBuffers;
     private final ArrayDeque<ByteBuffer> writeBuffers;
 
-    private boolean shouldClose = false;
+    public long currentTimestamp = System.currentTimeMillis();
 
+    public boolean isConnected = false;
+    public ConnectEventListener connectListener;
     public DisconnectEventListener disconnectListener;
+    private boolean shouldClose = false;
 
     public ChannelWrapper(SocketChannel channel, SelectionKey key) {
         this.channel = channel;
@@ -56,14 +60,15 @@ public class ChannelWrapper {
         channel.close();
     }
 
-    public void closeOnFinishData(){
+    public void closeOnFinishData() {
         shouldClose = true;
     }
 
-    public void addInterest(int op){
+    public void addInterest(int op) {
         selectionKey.interestOps(selectionKey.interestOps() | op);
     }
-    public void removeInterest(int op){
+
+    public void removeInterest(int op) {
         selectionKey.interestOps(selectionKey.interestOps() & (~op));
     }
 
@@ -77,9 +82,9 @@ public class ChannelWrapper {
         addInterest(SelectionKey.OP_READ);
     }
 
-    public BufferFiller popReadBuffer() throws IOException{
+    public BufferFiller popReadBuffer() throws IOException {
         BufferFiller b = readBuffers.removeFirst();
-        if(readBuffers.isEmpty()){
+        if (readBuffers.isEmpty()) {
             removeInterest(SelectionKey.OP_READ);
         }
         return b;
@@ -104,9 +109,9 @@ public class ChannelWrapper {
 
     public ByteBuffer popWriteBuffer() throws IOException {
         ByteBuffer b = writeBuffers.removeFirst();
-        if(writeBuffers.isEmpty()){
+        if (writeBuffers.isEmpty()) {
             removeInterest(SelectionKey.OP_WRITE);
-            if(shouldClose){
+            if (shouldClose) {
                 close();
             }
         }

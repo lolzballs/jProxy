@@ -2,10 +2,9 @@ package tk.jackyliao123.proxy.server;
 
 import tk.jackyliao123.proxy.ChannelWrapper;
 import tk.jackyliao123.proxy.Constants;
-import tk.jackyliao123.proxy.event.*;
+import tk.jackyliao123.proxy.event.AcceptEventListener;
+import tk.jackyliao123.proxy.event.EventProcessor;
 import tk.jackyliao123.proxy.server.event.AuthenticateListener;
-import tk.jackyliao123.proxy.server.event.EncryptedPacketLengthListener;
-import tk.jackyliao123.proxy.server.event.EncryptedPacketListener;
 import tk.jackyliao123.proxy.server.event.HandshakeListener;
 
 import java.io.IOException;
@@ -15,15 +14,13 @@ import java.nio.channels.ServerSocketChannel;
 import java.util.HashMap;
 
 public class Server implements AcceptEventListener {
-    private ServerSocketChannel serverChannel;
-    private EventProcessor processor;
-    private boolean running;
-
+    public EventProcessor processor;
     public Validator validator;
     public HashMap<String, ClientConnection> connections;
-
     public HandshakeListener handshakeListener;
     public AuthenticateListener authenticateListener;
+    private ServerSocketChannel serverChannel;
+    private boolean running;
 
     public Server(int port) throws IOException {
         this.serverChannel = ServerSocketChannel.open();
@@ -38,6 +35,17 @@ public class Server implements AcceptEventListener {
         serverChannel.configureBlocking(false);
         serverChannel.socket().bind(new InetSocketAddress(port));
         processor.registerServerChannel(serverChannel, this);
+    }
+
+    public static void main(String[] args) {
+        try {
+            Variables.loadAllVariables(args);
+            Server server = new Server(Variables.serverPort);
+            server.start();
+        } catch (Exception e) {
+            System.err.println("Server has experienced a critical error");
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -68,17 +76,6 @@ public class Server implements AcceptEventListener {
                 System.err.println("Server has experienced an error during event processing");
                 e.printStackTrace();
             }
-        }
-    }
-
-    public static void main(String[] args) {
-        try {
-            Variables.loadAllVariables(args);
-            Server server = new Server(Variables.serverPort);
-            server.start();
-        } catch (Exception e) {
-            System.err.println("Server has experienced a critical error");
-            e.printStackTrace();
         }
     }
 }
