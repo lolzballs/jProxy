@@ -47,7 +47,7 @@ In this stage, the client and server also exchange RSA and AES keys, giving encr
 | s |    296 | 2048-bit RSA Client PUBLIC Key                                                      |
 | s |     32 | Hash of Client PUBLIC Key with Shared Secret Salt                                   |
 | r |      1 | Status (0=Accepted, 1=Invalid Key)                                                  |
-| r |    256 | 256-bit AES Key encrypted with Client PUBLIC Key (if status is accepted)            |
+| r |     32 | 256-bit AES Key encrypted with Client PUBLIC Key (if status is accepted)            |
 
 
 ## Data Tunnelling
@@ -67,23 +67,6 @@ which goes into the Payload field of the Overhead Encrypted Packet.
 | b | n * 16 | Encrypted Data: Payload                                                             |
 
 
-### Ping (ICMP)
-
-| Direction | Length | Description                                                                 |
-|:--------- | ------:|:--------------------------------------------------------------------------- |
-| s |      1 | Magic Value: 0                                                                      |
-| s |      1 | Client Identifier                                                                   |
-| s |      2 | Timeout in ms                                                                       |
-| s |      1 | Type of Address (1=IPv4, 2=IPv6, 3=DNS)                                             |
-| s |      1 | Address Length (n)                                                                  |
-| s |      n | Address Data                                                                        |
-| r |      1 | Magic Value: 0                                                                      |
-| r |      1 | Client Identifier                                                                   |
-| r |      1 | Status (0=Successful, 1=Timed Out, 2=Unreachable, 3=Unknown Host)                   |
-| r |      2 | Ping time in ms                                                                     |
-
-
-
 ### TCP Connect
 
 | Direction | Length | Description                                                                 |
@@ -97,7 +80,7 @@ which goes into the Payload field of the Overhead Encrypted Packet.
 | r |      1 | Magic Value: 1                                                                      |
 | r |      2 | Connection Identifier                                                               |
 | r |      1 | Status (0=OK, 1=Refused, 2=Timed out...)                                            |
-| r |      1 | Response Time in ms                                                                 |
+| r |      2 | Response Time in ms                                                                 |
 
 ### TCP Packet
 
