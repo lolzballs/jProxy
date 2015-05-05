@@ -28,6 +28,7 @@ public class ConnectListener implements ConnectEventListener {
                     handler.sendConnect(connectionId, Constants.TCP_CONNECTION_OK, timeTaken);
                     channel.isConnected = true;
                     channel.pushDumpReadBuffer(new RedirectToClientListener(handler, connectionId));
+                    channel.disconnectListener = new RedirectDisconnectListener(handler, connectionId);
                 } else {
                     handler.sendConnect(connectionId, Constants.TCP_CONNECTION_GENERAL_FAIL, timeTaken);
                     handler.tcpConnections[connectionId] = null;

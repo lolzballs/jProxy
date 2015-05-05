@@ -1,6 +1,7 @@
-package tk.jackyliao123.proxy;
+package tk.jackyliao123.proxy.client;
 
-import java.io.File;
+import tk.jackyliao123.proxy.Constants;
+
 import java.net.InetSocketAddress;
 import java.security.MessageDigest;
 

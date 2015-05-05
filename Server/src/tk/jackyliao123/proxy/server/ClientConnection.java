@@ -8,6 +8,9 @@ import tk.jackyliao123.proxy.server.event.EncryptedPacketLengthListener;
 import tk.jackyliao123.proxy.server.event.EncryptedPacketListener;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 
 public class ClientConnection {
@@ -47,15 +50,52 @@ public class ClientConnection {
         channel.pushWriteBuffer(b);
     }
 
-    public void processPacket(byte[] data) {
+    public SocketAddress getSocketAddress(byte[] b, int offset, int port) throws IOException {
+        int addrLen = Util.b2ub(b[offset + 1]);
+        byte[] address = new byte[addrLen];
+        System.arraycopy(b, offset + 2, address, 0, addrLen);
+        switch (b[offset]) {
+            case Constants.IPv4:
+                if (addrLen != 4) {
+                    System.err.println("Invalid length for IPv4 address: " + addrLen);
+                }
+                return new InetSocketAddress(InetAddress.getByAddress(address), port);
+            case Constants.IPv6:
+                if (addrLen != 16) {
+                    System.err.println("Invalid length for IPv6 address: " + addrLen);
+                }
+                return new InetSocketAddress(InetAddress.getByAddress(address), port);
+            case Constants.DNS:
+                return new InetSocketAddress(new String(address, Constants.CHARSET), addrLen);
+            default:
+                System.err.println("Unknown address type: " + b[offset]);
+                throw new IllegalArgumentException("Unknown address type: " + b[offset]);
+        }
+    }
+
+    public void processPacket(byte[] data) throws IOException {
         System.out.println(Util.bs2str(data));
 
+        int connectionId;
+        int remotePort;
+        int length;
+        byte[] buffer;
         switch (data[0]) {
             case Constants.TCP_CONNECT:
+                connectionId = Util.bs2us(data, 1);
+                remotePort = Util.bs2us(data, 3);
+                tcp.connect(connectionId, getSocketAddress(data, 5, remotePort));
                 break;
             case Constants.TCP_PACKET:
+                connectionId = Util.bs2us(data, 1);
+                length = Util.bs2us(data, 3);
+                buffer = new byte[length];
+                System.arraycopy(data, 5, buffer, 0, length);
+                tcp.packet(connectionId, buffer);
                 break;
             case Constants.TCP_DISCONNECT:
+                connectionId = Util.bs2us(data, 1);
+                tcp.disconnect(connectionId);
                 break;
             case Constants.UDP_ASSOCIATE:
                 break;

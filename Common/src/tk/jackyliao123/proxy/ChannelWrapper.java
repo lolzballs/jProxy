@@ -73,7 +73,7 @@ public class ChannelWrapper {
     }
 
     public void pushDumpReadBuffer(ReadEventListener listener) {
-        readBuffers.addLast(new BufferFiller(ByteBuffer.allocate(Constants.MAX_MTU), listener, false));
+        readBuffers.addLast(new BufferFiller(ByteBuffer.allocate(Constants.BUFFER_SIZE), listener, false));
         addInterest(SelectionKey.OP_READ);
     }
 

@@ -1,4 +1,7 @@
-package tk.jackyliao123.proxy;
+package tk.jackyliao123.proxy.client;
+
+import tk.jackyliao123.proxy.Constants;
+import tk.jackyliao123.proxy.event.EventProcessor;
 
 import java.io.DataInputStream;
 import java.io.File;
@@ -7,9 +10,11 @@ import java.io.IOException;
 
 public class TestClient {
     private final Tunnel tunnel;
+    private final EventProcessor processor;
 
     public TestClient(byte[] secretKey) throws IOException {
-        this.tunnel = new Tunnel(secretKey);
+        this.processor = new EventProcessor();
+        this.tunnel = new Tunnel(processor, secretKey);
     }
 
     public static void main(String[] args) throws Exception {

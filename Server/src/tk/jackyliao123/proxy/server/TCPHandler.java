@@ -6,7 +6,7 @@ import tk.jackyliao123.proxy.Util;
 import tk.jackyliao123.proxy.server.event.ConnectListener;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
@@ -49,7 +49,7 @@ public class TCPHandler {
         client.sendPacket(buffer.array());
     }
 
-    public void connect(int connectionId, InetSocketAddress addr) throws IOException {
+    public void connect(int connectionId, SocketAddress addr) throws IOException {
         if (tcpConnections[connectionId] != null) {
             tcpConnections[connectionId].closeOnFinishData();
         }
@@ -61,5 +61,22 @@ public class TCPHandler {
         } catch (IOException e) {
             sendConnect(connectionId, Constants.TCP_CONNECTION_GENERAL_FAIL, 65535);
         }
+    }
+
+    public void packet(int connectionId, byte[] packet) throws IOException {
+        if (tcpConnections[connectionId] != null) {
+            ByteBuffer b = ByteBuffer.allocate(packet.length);
+            b.put(packet);
+            b.flip();
+            tcpConnections[connectionId].pushWriteBuffer(b);
+        }
+    }
+
+    public void disconnect(int connectionId) throws IOException {
+        if (tcpConnections[connectionId] != null) {
+            tcpConnections[connectionId].closeOnFinishData();
+        }
+        tcpConnections[connectionId] = null;
+        sendDisconnect(connectionId, Constants.TCP_DISCONNECT_CLIENT);
     }
 }

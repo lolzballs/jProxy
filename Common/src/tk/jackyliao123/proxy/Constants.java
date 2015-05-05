@@ -15,6 +15,12 @@ public class Constants {
     public static final byte LOGIN_ACCEPTED = 0;
     public static final byte LOGIN_INVALIDKEY = 1;
 
+    // Connection Address Types
+    public static final byte IPv4 = 1;
+    public static final byte IPv6 = 2;
+    public static final byte DNS = 3;
+
+    //Connections
     public static final byte TCP_CONNECT = 0x01;
     public static final byte TCP_PACKET = 0x21;
     public static final byte TCP_DISCONNECT = 0x41;
@@ -31,7 +37,11 @@ public class Constants {
     public static final byte TCP_CONNECTION_TIMEOUT = 3;
     public static final byte TCP_CONNECTION_UNREACHABLE = 4;
 
-    public static final int MAX_MTU = 1400;
+    public static final byte TCP_DISCONNECT_GENERAL = 1;
+    public static final byte TCP_DISCONNECT_CLIENT = 2;
+    public static final byte TCP_DISCONNECT_BROKEN_PIPE = 3;
+
+    public static final int BUFFER_SIZE = 2048;
     public static final int MAX_CONNECTIONS = 1024;
 
     // Crypto
