@@ -25,7 +25,6 @@ public class HandshakeListener implements ReadEventListener {
 
     @Override
     public void onRead(ChannelWrapper channel, byte[] array) throws IOException {
-        System.out.println(new String(array));
         if (!Util.bseq(array, 0, Constants.MAGIC_LENGTH, Constants.MAGIC, 0, Constants.MAGIC_LENGTH)) {
             sendResponse(channel, Constants.INIT_UNSUPPORTEDVERSION);
             channel.closeOnFinishData();

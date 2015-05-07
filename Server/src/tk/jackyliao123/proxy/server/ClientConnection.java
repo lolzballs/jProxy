@@ -4,8 +4,8 @@ import tk.jackyliao123.proxy.ChannelWrapper;
 import tk.jackyliao123.proxy.Constants;
 import tk.jackyliao123.proxy.Util;
 import tk.jackyliao123.proxy.cipher.AESCipher;
-import tk.jackyliao123.proxy.server.event.EncryptedPacketLengthListener;
-import tk.jackyliao123.proxy.server.event.EncryptedPacketListener;
+import tk.jackyliao123.proxy.server.event.ServerEncryptedPacketLengthListener;
+import tk.jackyliao123.proxy.server.event.ServerEncryptedPacketListener;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -16,8 +16,8 @@ import java.nio.ByteBuffer;
 public class ClientConnection {
     public Server server;
     public AESCipher cipher;
-    public EncryptedPacketLengthListener packetLengthListener;
-    public EncryptedPacketListener packetListener;
+    public ServerEncryptedPacketLengthListener packetLengthListener;
+    public ServerEncryptedPacketListener packetListener;
     private ChannelWrapper channel;
     private TCPHandler tcp;
 
@@ -28,8 +28,8 @@ public class ClientConnection {
 
         this.cipher = cipher;
 
-        this.packetLengthListener = new EncryptedPacketLengthListener(this);
-        this.packetListener = new EncryptedPacketListener(this);
+        this.packetLengthListener = new ServerEncryptedPacketLengthListener(this);
+        this.packetListener = new ServerEncryptedPacketListener(this);
     }
 
     public void sendPacket(byte[] data) throws IOException {

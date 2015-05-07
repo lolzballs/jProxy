@@ -110,7 +110,8 @@ public class EventProcessor {
                     }
                 }
             } catch (Exception e) {
-                System.err.println("Event processing has experienced an error on " + key);
+                System.err.println("Event processing has experienced an error on " + key + ", killing");
+                kill((ChannelWrapper) key.attachment());
                 e.printStackTrace();
             }
             keys.remove();

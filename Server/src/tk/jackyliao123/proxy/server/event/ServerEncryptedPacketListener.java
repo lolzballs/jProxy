@@ -7,10 +7,10 @@ import tk.jackyliao123.proxy.server.ClientConnection;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-public class EncryptedPacketListener implements ReadEventListener {
+public class ServerEncryptedPacketListener implements ReadEventListener {
     public final ClientConnection connection;
 
-    public EncryptedPacketListener(ClientConnection connection) {
+    public ServerEncryptedPacketListener(ClientConnection connection) {
         this.connection = connection;
     }
 

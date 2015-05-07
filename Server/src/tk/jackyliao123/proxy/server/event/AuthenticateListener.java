@@ -72,6 +72,8 @@ public class AuthenticateListener implements ReadEventListener {
             ClientConnection connection = new ClientConnection(server, channel, new AESCipher(key));
             server.connections.put(user, connection);
             channel.pushFillReadBuffer(ByteBuffer.allocate(1), connection.packetLengthListener);
+
+            System.out.println("User " + user + " connected from " + channel.channel);
         } catch (GeneralSecurityException e) {
             throw new IOException(e);
         }

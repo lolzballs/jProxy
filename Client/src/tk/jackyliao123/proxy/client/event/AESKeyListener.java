@@ -4,9 +4,7 @@ import tk.jackyliao123.proxy.ChannelWrapper;
 import tk.jackyliao123.proxy.client.Tunnel;
 import tk.jackyliao123.proxy.event.ReadEventListener;
 
-import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 
