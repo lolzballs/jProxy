@@ -21,7 +21,7 @@ public class TestClient {
         this.tunnel = new Tunnel(processor, secretKey, new TCPListener() {
             public void onTcpConnect(int connectionId, byte statusCode, int ping) throws IOException {
                 tunnel.tcp.send(0, "GET / HTTP/1.1\r\n\r\n".getBytes());
-                System.out.println("connected to google");
+                System.out.println("connected to google with ping: " + ping + "ms");
             }
 
             public void onTcpPacket(int connectionId, byte[] packet) throws IOException{
@@ -45,7 +45,7 @@ public class TestClient {
 
         System.out.println("Connected successfully.");
 
-        tunnel.tcp.connect(0, "www.google.com", 80);
+        tunnel.tcp.connect(0, "google.com", 80);
 
         while (connected) {
             processor.process(Variables.timeout);

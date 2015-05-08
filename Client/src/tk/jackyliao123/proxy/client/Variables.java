@@ -13,7 +13,7 @@ public class Variables {
 
     public static void loadAllVariables(String[] args) throws Exception {
         // TODO: Read from args + config files
-        serverAddress = new InetSocketAddress("localhost", 16384);
+        serverAddress = new InetSocketAddress("192.168.88.238", 16384);
         timeout = 60000;
         hashAlgorithm = MessageDigest.getInstance(Constants.HASH_ALGORITHM);
     }

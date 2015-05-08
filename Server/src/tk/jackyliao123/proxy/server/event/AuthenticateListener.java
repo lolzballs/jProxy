@@ -48,6 +48,7 @@ public class AuthenticateListener implements ReadEventListener {
 
     @Override
     public void onRead(ChannelWrapper channel, byte[] array) throws IOException {
+        System.out.println("authenticate listener read!");
         byte[] rsaKey = new byte[Constants.RSA_PUBLICKEYSIZE_BYTES];
         System.arraycopy(array, 0, rsaKey, 0, Constants.RSA_PUBLICKEYSIZE_BYTES);
 
@@ -61,6 +62,7 @@ public class AuthenticateListener implements ReadEventListener {
         }
 
         try {
+            System.out.println("Generating AES Key...");
             PublicKey clientKey = KeyFactory.getInstance(Constants.RSA_ALGORITHM).generatePublic(new X509EncodedKeySpec(rsaKey));
 
             KeyGenerator generator = KeyGenerator.getInstance(Constants.AES_ALGORITHM);

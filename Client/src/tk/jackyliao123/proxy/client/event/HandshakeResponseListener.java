@@ -39,25 +39,31 @@ public class HandshakeResponseListener implements ReadEventListener {
 
         try {
             // Generate keys
+            System.out.print("Generating RSA keypair... ");
             KeyPairGenerator generator = KeyPairGenerator.getInstance(Constants.RSA_ALGORITHM);
             generator.initialize(Constants.RSA_KEYSIZE);
             KeyPair rsaPair = generator.generateKeyPair();
             Cipher decrypt = Cipher.getInstance(Constants.RSA_ALGORITHM);
             decrypt.init(Cipher.DECRYPT_MODE, rsaPair.getPrivate());
             byte[] encoded = rsaPair.getPublic().getEncoded();
+            System.out.println("complete, generated " + encoded.length + " bytes");
 
             // Generate hash
+            System.out.print("Generating key signature hash... ");
             byte[] toBeHashed = new byte[Constants.RSA_PUBLICKEYSIZE_BYTES + Constants.SECRET_SALT_SIZE];
             System.arraycopy(encoded, 0, toBeHashed, 0, Constants.RSA_PUBLICKEYSIZE_BYTES);
             System.arraycopy(secretKey, 0, toBeHashed, Constants.RSA_PUBLICKEYSIZE_BYTES, Constants.SECRET_SALT_SIZE);
 
             byte[] hash = Variables.hashAlgorithm.digest(toBeHashed);
+            System.out.println("complete");
 
             ByteBuffer auth = ByteBuffer.allocate(Constants.RSA_PUBLICKEYSIZE_BYTES + Constants.HASH_SIZE);
             auth.put(encoded);
             auth.put(hash);
             auth.flip();
             channel.pushWriteBuffer(auth);
+
+            System.out.println("Sending...");
 
             // Server response
             ByteBuffer statusResponse = ByteBuffer.allocate(1);
