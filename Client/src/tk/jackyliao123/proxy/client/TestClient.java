@@ -26,7 +26,7 @@ public class TestClient {
 
             public void onTcpPacket(int connectionId, byte[] packet) throws IOException{
                 System.out.println(new String(packet));
-//                tunnel.tcp.send(0, "GET / HTTP/1.1\r\n\r\n".getBytes());
+                tunnel.tcp.send(0, "GET / HTTP/1.1\r\n\r\n".getBytes());
             }
 
             public void onTcpDisconnect(int connectionId, byte reason) throws IOException{
