@@ -18,7 +18,7 @@ public class ConnectToServerListener implements ConnectEventListener {
         this.secretKey = secretKey;
     }
 
-    public void onConnect(ChannelWrapper c) throws IOException {
+    public boolean onConnect(ChannelWrapper c) throws IOException {
         SocketChannel channel = (SocketChannel) c.channel;
         boolean connected = channel.finishConnect();
         if (!connected) {
@@ -31,5 +31,6 @@ public class ConnectToServerListener implements ConnectEventListener {
         handshake.flip();
         c.pushWriteBuffer(handshake);
         c.pushFillReadBuffer(ByteBuffer.allocate(Constants.MAGIC_LENGTH + 1), new HandshakeResponseListener(tunnel, secretKey));
+        return true;
     }
 }

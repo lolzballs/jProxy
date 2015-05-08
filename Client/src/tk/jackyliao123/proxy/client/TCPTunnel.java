@@ -51,17 +51,17 @@ public class TCPTunnel {
         tunnel.sendEncryptedPacket(buffer.array());
     }
 
-    public void onConnect(int connectionID, byte status, int ping) {
+    public void onConnect(int connectionID, byte status, int ping) throws IOException {
         listener.onTcpConnect(connectionID, status, ping);
     }
 
 
-    public void onReceive(int connectionID, byte[] packet) {
+    public void onReceive(int connectionID, byte[] packet) throws IOException {
         listener.onTcpPacket(connectionID, packet);
     }
 
 
-    public void onDisconnect(int connectionID, byte reason) {
+    public void onDisconnect(int connectionID, byte reason) throws IOException {
         listener.onTcpDisconnect(connectionID, reason);
     }
 }

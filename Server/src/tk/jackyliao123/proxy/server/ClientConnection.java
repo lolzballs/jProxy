@@ -43,9 +43,12 @@ public class ClientConnection {
             System.err.println("Error: encrypted blocks is more than 256: " + length / 16);
             throw new IOException("Error: encrypted blocks is more than 256: " + length / 16);
         }
+
+        System.out.println("Sending: " + Util.bs2str(data));
+
         ByteBuffer b = ByteBuffer.allocate(length + 1);
         b.put((byte) (length / 16));
-        b.put(data);
+        b.put(enc);
         b.flip();
         channel.pushWriteBuffer(b);
     }
@@ -66,7 +69,7 @@ public class ClientConnection {
                 }
                 return new InetSocketAddress(InetAddress.getByAddress(address), port);
             case Constants.DNS:
-                return new InetSocketAddress(new String(address, Constants.CHARSET), addrLen);
+                return new InetSocketAddress(new String(address, Constants.CHARSET), port);
             default:
                 System.err.println("Unknown address type: " + b[offset]);
                 throw new IllegalArgumentException("Unknown address type: " + b[offset]);
@@ -74,7 +77,7 @@ public class ClientConnection {
     }
 
     public void processPacket(byte[] data) throws IOException {
-        System.out.println(Util.bs2str(data));
+        System.out.println("Received: " + Util.bs2str(data));
 
         int connectionId;
         int remotePort;

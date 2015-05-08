@@ -31,5 +31,7 @@ public class AuthenticateResponseListener implements ReadEventListener {
 
         ByteBuffer aesEncrypted = ByteBuffer.allocate(Constants.RSA_MODULUSSIZE_BYTES);
         channel.pushFillReadBuffer(aesEncrypted, new AESKeyListener(tunnel, decrypt));
+
+        System.out.println("Logged in succesfully.");
     }
 }

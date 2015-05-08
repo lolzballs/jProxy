@@ -50,6 +50,7 @@ public class TCPHandler {
     }
 
     public void connect(int connectionId, SocketAddress addr) throws IOException {
+        System.out.println("Connect: " + addr);
         if (tcpConnections[connectionId] != null) {
             tcpConnections[connectionId].closeOnFinishData();
         }

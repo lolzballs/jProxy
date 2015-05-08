@@ -34,7 +34,7 @@ public class HandshakeResponseListener implements ReadEventListener {
             }
             throw new IOException("Error: Invalid Response: " + status);
         } else {
-            System.out.println("Connected successfully.");
+            System.out.println("Connected to server. Authenticating.");
         }
 
         try {

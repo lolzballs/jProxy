@@ -23,7 +23,11 @@ public class EventProcessor {
     }
 
     public void process(long timeout) throws IOException {
-        selector.select(timeout);
+        //System.out.println();
+        int selectKey = selector.select(timeout);
+        if(selectKey == 0){
+            System.err.println("selectKey = 0");
+        }
 
         Iterator<SelectionKey> keys = selector.selectedKeys().iterator();
         while (keys.hasNext()) {
@@ -31,10 +35,12 @@ public class EventProcessor {
             try {
                 if (!key.isValid()) {
                     kill((ChannelWrapper) key.attachment());
+                    keys.remove();
                     continue;
                 }
 
                 if (key.isReadable()) {
+                    System.out.println("isReadable");
                     Object attachment = key.attachment();
                     if (attachment != null && attachment instanceof ChannelWrapper) {
                         ChannelWrapper channel = (ChannelWrapper) attachment;
@@ -60,10 +66,12 @@ public class EventProcessor {
 
                 if (!key.isValid()) {
                     kill((ChannelWrapper) key.attachment());
+                    keys.remove();
                     continue;
                 }
 
                 if (key.isWritable()) {
+                    System.out.println("isWritable");
                     Object attachment = key.attachment();
                     if (attachment != null && attachment instanceof ChannelWrapper) {
                         ChannelWrapper channel = (ChannelWrapper) attachment;
@@ -76,14 +84,17 @@ public class EventProcessor {
                             }
                         }
                     }
+
                 }
 
                 if (!key.isValid()) {
                     kill((ChannelWrapper) key.attachment());
+                    keys.remove();
                     continue;
                 }
 
                 if (key.isAcceptable()) {
+                    System.out.println("isAcceptable");
                     Object attachment = key.attachment();
                     if (attachment != null && attachment instanceof AcceptEventListener) {
                         SocketChannel channel = ((ServerSocketChannel) key.channel()).accept();
@@ -97,23 +108,30 @@ public class EventProcessor {
 
                 if (!key.isValid()) {
                     kill((ChannelWrapper) key.attachment());
+                    keys.remove();
                     continue;
                 }
 
                 if (key.isConnectable()) {
+                    System.out.println("isConnectable");
                     Object attachment = key.attachment();
                     if (attachment != null && attachment instanceof ChannelWrapper) {
                         ConnectEventListener listener = ((ChannelWrapper) attachment).connectListener;
+                        ((ChannelWrapper) attachment).removeInterest(SelectionKey.OP_CONNECT);
                         if (listener != null) {
-                            listener.onConnect((ChannelWrapper) attachment);
+                            boolean b = listener.onConnect((ChannelWrapper) attachment);
+                            if (b) {
+                                ((ChannelWrapper) attachment).isConnected = true;
+                            }
                         }
                     }
                 }
             } catch (Exception e) {
-                System.err.println("Event processing has experienced an error on " + key + ", killing");
+                System.err.println("Event processing has experienced an error on " + key.channel() + ", killing");
                 kill((ChannelWrapper) key.attachment());
                 e.printStackTrace();
             }
+
             keys.remove();
         }
     }

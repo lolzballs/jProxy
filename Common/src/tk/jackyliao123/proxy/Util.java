@@ -23,7 +23,11 @@ public class Util {
     public static String bs2str(byte[] b) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < b.length; ++i) {
-            sb.append(Integer.toHexString(b[i] & 0xFF).toUpperCase());
+            String s = Integer.toHexString(b[i] & 0xFF).toUpperCase();
+            if(s.length() == 1){
+                sb.append('0');
+            }
+            sb.append(s);
         }
         return sb.toString();
     }

@@ -23,6 +23,7 @@ public class Tunnel {
     public ClientEncryptedPacketListener packetListener;
     public TCPTunnel tcp;
     private AESCipher cipher;
+    public boolean connected;
 
     public Tunnel(EventProcessor processor, byte[] secretKey, TCPListener tcpListener) throws IOException {
         this.processor = processor;
@@ -35,13 +36,16 @@ public class Tunnel {
         this.packetListener = new ClientEncryptedPacketListener(this);
 
         this.tcp = new TCPTunnel(this, tcpListener);
+
+        System.out.println("Connecting to server...");
+
     }
 
     public void init(byte[] aesBytes) throws IOException {
         try {
             cipher = new AESCipher(new SecretKeySpec(aesBytes, Constants.AES_ALGORITHM));
             serverConnection.pushFillReadBuffer(ByteBuffer.allocate(1), packetLengthListener);
-
+            connected = true;
         } catch (GeneralSecurityException e) {
             throw new IOException(e);
         }
@@ -86,14 +90,19 @@ public class Tunnel {
             System.err.println("Encrypted number of blocks is greater than 255: " + length);
             throw new IOException("Encrypted number of blocks is greater than 255: " + length);
         }
-        ByteBuffer buffer = ByteBuffer.allocate(packet.length + 1);
+        ByteBuffer buffer = ByteBuffer.allocate(encrypted.length + 1);
         buffer.put((byte) length);
         buffer.put(encrypted);
         buffer.flip();
+        serverConnection.pushWriteBuffer(buffer);
+
+        System.out.println("Sending: " + Util.bs2str(buffer.array()));
     }
 
     public void receiveEncryptedPacket(byte[] packet) throws IOException {
         byte[] data = cipher.decrypt(packet);
         onRawData(data);
+
+        System.out.println("Received: " + Util.bs2str(data));
     }
 }
