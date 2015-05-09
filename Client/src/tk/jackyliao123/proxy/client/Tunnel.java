@@ -23,8 +23,8 @@ public class Tunnel {
     public ClientEncryptedPacketLengthListener packetLengthListener;
     public ClientEncryptedPacketListener packetListener;
     public TCPTunnel tcp;
-    private AESCipher cipher;
     public boolean connected;
+    private AESCipher cipher;
 
     public Tunnel(EventProcessor processor, byte[] secretKey, TCPListener tcpListener) throws IOException {
         this.processor = processor;

@@ -9,50 +9,9 @@ public class Logger {
     public static final byte WARNING = 3;
     public static final byte ERROR = 4;
     public static final String[] messages = new String[]{"DEBUG", "VERBOSE", "INFO", "WARNING", "ERROR"};
-
-    private static class Message {
-        private byte level;
-        private String message;
-        private Throwable t;
-
-        private Message(byte level, String message) {
-            this.level = level;
-            this.message = message;
-        }
-
-        private Message(byte level, Throwable t) {
-            this.level = level;
-            this.t = t;
-        }
-    }
-
     private static final ArrayDeque<Message> queue = new ArrayDeque<Message>();
-    private static byte level;
     private static final LogThread thread = new LogThread();
-
-    public static class LogThread extends Thread {
-        public void run() {
-            while (true) {
-                try {
-                    Thread.sleep(Long.MAX_VALUE);
-                } catch (InterruptedException ignored) {
-                }
-                synchronized (queue) {
-                    while (queue.size() > 0) {
-                        Message m = queue.pop();
-                        if (m.level >= level) {
-                            if (m.t != null) {
-                                m.t.printStackTrace();
-                            }
-                            if (m.message != null) {
-                                System.out.println("[" + messages[m.level] + "] " + m.message);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+    private static byte level;
 
     public static void init(byte level) {
         Logger.level = level;
@@ -103,5 +62,45 @@ public class Logger {
             queue.addLast(new Message(DEBUG, s));
         }
         thread.interrupt();
+    }
+
+    private static class Message {
+        private byte level;
+        private String message;
+        private Throwable t;
+
+        private Message(byte level, String message) {
+            this.level = level;
+            this.message = message;
+        }
+
+        private Message(byte level, Throwable t) {
+            this.level = level;
+            this.t = t;
+        }
+    }
+
+    public static class LogThread extends Thread {
+        public void run() {
+            while (true) {
+                try {
+                    Thread.sleep(Long.MAX_VALUE);
+                } catch (InterruptedException ignored) {
+                }
+                synchronized (queue) {
+                    while (queue.size() > 0) {
+                        Message m = queue.pop();
+                        if (m.level >= level) {
+                            if (m.t != null) {
+                                m.t.printStackTrace();
+                            }
+                            if (m.message != null) {
+                                System.out.println("[" + messages[m.level] + "] " + m.message);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }

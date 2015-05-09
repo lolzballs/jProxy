@@ -24,7 +24,7 @@ public class Util {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < b.length; ++i) {
             String s = Integer.toHexString(b[i] & 0xFF).toUpperCase();
-            if(s.length() == 1){
+            if (s.length() == 1) {
                 sb.append('0');
             }
             sb.append(s);

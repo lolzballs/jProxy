@@ -25,12 +25,12 @@ public class TestClient {
                 System.out.println("connected to google with ping: " + ping + "ms");
             }
 
-            public void onTcpPacket(int connectionId, byte[] packet) throws IOException{
+            public void onTcpPacket(int connectionId, byte[] packet) throws IOException {
                 System.out.println(new String(packet));
                 tunnel.tcp.send(0, "GET / HTTP/1.1\r\n\r\n".getBytes());
             }
 
-            public void onTcpDisconnect(int connectionId, byte reason) throws IOException{
+            public void onTcpDisconnect(int connectionId, byte reason) throws IOException {
             }
         });
         tunnel.serverConnection.disconnectListener = new DisconnectEventListener() {
