@@ -2,6 +2,7 @@ package tk.jackyliao123.proxy.client;
 
 import tk.jackyliao123.proxy.ChannelWrapper;
 import tk.jackyliao123.proxy.Constants;
+import tk.jackyliao123.proxy.Logger;
 import tk.jackyliao123.proxy.client.event.TCPListener;
 import tk.jackyliao123.proxy.event.DisconnectEventListener;
 import tk.jackyliao123.proxy.event.EventProcessor;
@@ -53,7 +54,11 @@ public class TestClient {
     }
 
     public static void main(String[] args) throws Exception {
+        Logger.init(Logger.DEBUG);
+
         Variables.loadAllVariables(args);
+
+        Logger.setLoggingLevel(Variables.loggingLevel);
 
         // Test load keys
         DataInputStream input = new DataInputStream(new FileInputStream(new File("keys.dat")));

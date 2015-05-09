@@ -2,6 +2,7 @@ package tk.jackyliao123.proxy.client;
 
 import tk.jackyliao123.proxy.ChannelWrapper;
 import tk.jackyliao123.proxy.Constants;
+import tk.jackyliao123.proxy.Logger;
 import tk.jackyliao123.proxy.Util;
 import tk.jackyliao123.proxy.cipher.AESCipher;
 import tk.jackyliao123.proxy.client.event.ClientEncryptedPacketLengthListener;
@@ -37,7 +38,7 @@ public class Tunnel {
 
         this.tcp = new TCPTunnel(this, tcpListener);
 
-        System.out.println("Connecting to server...");
+        Logger.info("Connecting to server...");
 
     }
 
@@ -82,12 +83,10 @@ public class Tunnel {
     public void sendEncryptedPacket(byte[] packet) throws IOException {
         byte[] encrypted = cipher.encrypt(packet);
         if (encrypted.length % 16 != 0) {
-            System.err.println("Encrypted packet size is not multiple of 16" + encrypted.length);
             throw new IOException("Encrypted packet size is not multiple of 16: " + encrypted.length);
         }
         int length = encrypted.length / 16;
         if (length >= 256) {
-            System.err.println("Encrypted number of blocks is greater than 255: " + length);
             throw new IOException("Encrypted number of blocks is greater than 255: " + length);
         }
         ByteBuffer buffer = ByteBuffer.allocate(encrypted.length + 1);
@@ -96,13 +95,13 @@ public class Tunnel {
         buffer.flip();
         serverConnection.pushWriteBuffer(buffer);
 
-        System.out.println("Sending: " + Util.bs2str(buffer.array()));
+        Logger.debug("Sending: " + Util.bs2str(buffer.array()));
     }
 
     public void receiveEncryptedPacket(byte[] packet) throws IOException {
         byte[] data = cipher.decrypt(packet);
         onRawData(data);
 
-        System.out.println("Received: " + Util.bs2str(data));
+        Logger.debug("Received: " + Util.bs2str(data));
     }
 }

@@ -2,6 +2,7 @@ package tk.jackyliao123.proxy.server.event;
 
 import tk.jackyliao123.proxy.ChannelWrapper;
 import tk.jackyliao123.proxy.Constants;
+import tk.jackyliao123.proxy.Logger;
 import tk.jackyliao123.proxy.cipher.AESCipher;
 import tk.jackyliao123.proxy.event.ReadEventListener;
 import tk.jackyliao123.proxy.server.ClientConnection;
@@ -48,7 +49,6 @@ public class AuthenticateListener implements ReadEventListener {
 
     @Override
     public void onRead(ChannelWrapper channel, byte[] array) throws IOException {
-        System.out.println("authenticate listener read!");
         byte[] rsaKey = new byte[Constants.RSA_PUBLICKEYSIZE_BYTES];
         System.arraycopy(array, 0, rsaKey, 0, Constants.RSA_PUBLICKEYSIZE_BYTES);
 
@@ -62,7 +62,7 @@ public class AuthenticateListener implements ReadEventListener {
         }
 
         try {
-            System.out.println("Generating AES Key...");
+            Logger.verbose("Generating AES Key...");
             PublicKey clientKey = KeyFactory.getInstance(Constants.RSA_ALGORITHM).generatePublic(new X509EncodedKeySpec(rsaKey));
 
             KeyGenerator generator = KeyGenerator.getInstance(Constants.AES_ALGORITHM);
@@ -75,7 +75,7 @@ public class AuthenticateListener implements ReadEventListener {
             server.connections.put(user, connection);
             channel.pushFillReadBuffer(ByteBuffer.allocate(1), connection.packetLengthListener);
 
-            System.out.println("User " + user + " connected from " + channel.channel);
+            Logger.info("User " + user + " connected from " + channel.channel);
         } catch (GeneralSecurityException e) {
             throw new IOException(e);
         }

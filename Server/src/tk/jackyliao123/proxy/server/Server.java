@@ -2,6 +2,7 @@ package tk.jackyliao123.proxy.server;
 
 import tk.jackyliao123.proxy.ChannelWrapper;
 import tk.jackyliao123.proxy.Constants;
+import tk.jackyliao123.proxy.Logger;
 import tk.jackyliao123.proxy.event.AcceptEventListener;
 import tk.jackyliao123.proxy.event.EventProcessor;
 import tk.jackyliao123.proxy.server.event.AuthenticateListener;
@@ -38,13 +39,17 @@ public class Server implements AcceptEventListener {
     }
 
     public static void main(String[] args) {
+        Logger.init(Logger.DEBUG);
+
         try {
             Variables.loadAllVariables(args);
+            Logger.setLoggingLevel(Variables.loggingLevel);
+
             Server server = new Server(Variables.serverPort);
             server.start();
         } catch (Exception e) {
-            System.err.println("Server has experienced a critical error");
-            e.printStackTrace();
+            Logger.error("Server has experienced a critical error");
+            Logger.error(e);
         }
     }
 
@@ -73,8 +78,8 @@ public class Server implements AcceptEventListener {
             try {
                 processor.process(Variables.timeout);
             } catch (Exception e) {
-                System.err.println("Server has experienced an error during event processing");
-                e.printStackTrace();
+                Logger.error("Server has experienced an error during event processing");
+                Logger.error(e);
             }
         }
     }

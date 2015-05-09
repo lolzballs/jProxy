@@ -2,6 +2,7 @@ package tk.jackyliao123.proxy.client.event;
 
 import tk.jackyliao123.proxy.ChannelWrapper;
 import tk.jackyliao123.proxy.Constants;
+import tk.jackyliao123.proxy.Logger;
 import tk.jackyliao123.proxy.client.Tunnel;
 import tk.jackyliao123.proxy.event.ReadEventListener;
 
@@ -32,6 +33,6 @@ public class AuthenticateResponseListener implements ReadEventListener {
         ByteBuffer aesEncrypted = ByteBuffer.allocate(Constants.RSA_MODULUSSIZE_BYTES);
         channel.pushFillReadBuffer(aesEncrypted, new AESKeyListener(tunnel, decrypt));
 
-        System.out.println("Logged in succesfully.");
+        Logger.info("Logged in successfully.");
     }
 }

@@ -2,6 +2,7 @@ package tk.jackyliao123.proxy.event;
 
 import tk.jackyliao123.proxy.BufferFiller;
 import tk.jackyliao123.proxy.ChannelWrapper;
+import tk.jackyliao123.proxy.Logger;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -23,7 +24,6 @@ public class EventProcessor {
     }
 
     public void process(long timeout) throws IOException {
-        //System.out.println();
         selector.select(timeout);
 
         Iterator<SelectionKey> keys = selector.selectedKeys().iterator();
@@ -55,7 +55,7 @@ public class EventProcessor {
                                 channel.popReadBuffer().listener.onRead(channel, array);
                             }
                         } else {
-                            System.err.println("Error, ignored bytes, buffered. Performance bug. This should not happen.");
+                            Logger.error("Error, ignored bytes, buffered. Performance bug. This should not happen.");
                         }
                     }
                 }
@@ -120,9 +120,9 @@ public class EventProcessor {
                     }
                 }
             } catch (Exception e) {
-                System.err.println("Event processing has experienced an error on " + key.channel() + ", killing");
+                Logger.error("Event processing has experienced an error on " + key.channel() + ", killing");
                 kill((ChannelWrapper) key.attachment());
-                e.printStackTrace();
+                Logger.error(e);
             }
 
             keys.remove();
@@ -145,10 +145,10 @@ public class EventProcessor {
         try {
             channel.close();
         } catch (IOException e) {
-            System.err.println("Unable to kill connection");
-            e.printStackTrace();
+            Logger.error("Unable to kill connection");
+            Logger.error(e);
         }
 
-        System.out.println("Connection closed: " + channel.channel);
+        Logger.info("Connection closed: " + channel.channel);
     }
 }

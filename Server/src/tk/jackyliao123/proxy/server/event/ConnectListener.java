@@ -2,6 +2,7 @@ package tk.jackyliao123.proxy.server.event;
 
 import tk.jackyliao123.proxy.ChannelWrapper;
 import tk.jackyliao123.proxy.Constants;
+import tk.jackyliao123.proxy.Logger;
 import tk.jackyliao123.proxy.event.ConnectEventListener;
 import tk.jackyliao123.proxy.server.TCPHandler;
 
@@ -43,16 +44,16 @@ public class ConnectListener implements ConnectEventListener {
                 } else if (message.equals("Connection timed out")) {
                     status = Constants.TCP_CONNECTION_TIMEOUT;
                 } else {
-                    System.out.println("Unknown TCP connection error: " + e.getMessage());
+                    Logger.error("Unknown TCP connection error: " + e.getMessage());
                     status = Constants.TCP_CONNECTION_GENERAL_FAIL;
                 }
                 handler.sendConnect(connectionId, status, timeTaken);
                 handler.tcpConnections[connectionId] = null;
-                e.printStackTrace();
+                Logger.error(e);
             } catch (IOException e) {
                 handler.sendConnect(connectionId, Constants.TCP_CONNECTION_GENERAL_FAIL, timeTaken);
                 handler.tcpConnections[connectionId] = null;
-                e.printStackTrace();
+                Logger.error(e);
             }
         }
         return false;

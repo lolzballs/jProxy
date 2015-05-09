@@ -54,8 +54,8 @@ public class ChannelWrapper {
                 disconnectListener.onDisconnect(this);
             }
         } catch (Exception e) {
-            System.err.println("onDisconnect has experienced an error");
-            e.printStackTrace();
+            Logger.error("onDisconnect has experienced an error");
+            Logger.error(e);
         }
         channel.close();
     }

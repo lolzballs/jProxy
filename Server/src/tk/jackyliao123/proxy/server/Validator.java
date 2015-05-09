@@ -1,6 +1,7 @@
 package tk.jackyliao123.proxy.server;
 
 import tk.jackyliao123.proxy.Constants;
+import tk.jackyliao123.proxy.Logger;
 import tk.jackyliao123.proxy.Util;
 
 import java.io.*;
@@ -24,18 +25,18 @@ public class Validator {
                 System.arraycopy(secretSalt, 0, array, Constants.RSA_PUBLICKEYSIZE_BYTES, Constants.SECRET_SALT_SIZE);
                 byte[] newHash = Variables.hashAlgorithm.digest(array);
                 if (newHash.length != hash.length || hash.length != Constants.HASH_SIZE) {
-                    System.err.println("Hash length mismatch: received " + hash.length + " bytes, generated " + newHash.length + " bytes, expected " + Constants.HASH_SIZE + " bytes");
+                    Logger.error("Hash length mismatch: received " + hash.length + " bytes, generated " + newHash.length + " bytes, expected " + Constants.HASH_SIZE + " bytes");
                     continue;
                 }
                 if (Util.bseq(hash, newHash)) {
                     return user;
                 } else {
-                    System.err.println("Invalid hash received: " + Util.bs2str(hash));
+                    Logger.error("Invalid hash received: " + Util.bs2str(hash));
                 }
             }
         } catch (EOFException ignored) {
         } catch (IOException e) {
-            System.err.println("Error occurred when reading secret keys: " + e);
+            Logger.error("Error occurred when reading secret keys: " + e);
         } finally {
             for (int i = 0; i < secretSalt.length; ++i) {
                 secretSalt[i] = 0;
@@ -44,7 +45,7 @@ public class Validator {
                 array[i] = 0;
             }
         }
-        System.err.println("No match for received hash found: " + Util.bs2str(hash));
+        Logger.error("No match for received hash found: " + Util.bs2str(hash));
         return null;
     }
 }

@@ -2,6 +2,7 @@ package tk.jackyliao123.proxy.server;
 
 import tk.jackyliao123.proxy.ChannelWrapper;
 import tk.jackyliao123.proxy.Constants;
+import tk.jackyliao123.proxy.Logger;
 import tk.jackyliao123.proxy.Util;
 import tk.jackyliao123.proxy.server.event.ConnectListener;
 
@@ -50,7 +51,7 @@ public class TCPHandler {
     }
 
     public void connect(int connectionId, SocketAddress addr) throws IOException {
-        System.out.println("Connect: " + addr);
+        Logger.verbose("Connect: " + addr);
         if (tcpConnections[connectionId] != null) {
             tcpConnections[connectionId].closeOnFinishData();
         }

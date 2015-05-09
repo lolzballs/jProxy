@@ -15,7 +15,7 @@ public class Util {
 
     public static byte[] us2bs(int n) {
         if (n >= 65536) {
-            System.err.println("Error: unsigned short out of range: " + n);
+            Logger.error("unsigned short out of range: " + n);
         }
         return new byte[]{(byte) (n >>> 8), (byte) (n & 0xFF)};
     }

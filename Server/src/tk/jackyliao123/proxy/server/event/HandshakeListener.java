@@ -2,6 +2,7 @@ package tk.jackyliao123.proxy.server.event;
 
 import tk.jackyliao123.proxy.ChannelWrapper;
 import tk.jackyliao123.proxy.Constants;
+import tk.jackyliao123.proxy.Logger;
 import tk.jackyliao123.proxy.Util;
 import tk.jackyliao123.proxy.event.ReadEventListener;
 import tk.jackyliao123.proxy.server.Server;
@@ -36,7 +37,7 @@ public class HandshakeListener implements ReadEventListener {
             return;
         }
         if (array[Constants.MAGIC_LENGTH + 1] != Constants.MINOR) {
-            System.err.println("WARNING: MINOR VERSION MISMATCH: Received " + array[Constants.MAGIC_LENGTH] + ", Expected " + Constants.MINOR);
+            Logger.error("WARNING: MINOR VERSION MISMATCH: Received " + array[Constants.MAGIC_LENGTH] + ", Expected " + Constants.MINOR);
         }
         sendResponse(channel, Constants.INIT_SUCCESSFUL);
         channel.pushFillReadBuffer(ByteBuffer.allocate(Constants.RSA_PUBLICKEYSIZE_BYTES + Constants.HASH_SIZE), server.authenticateListener);

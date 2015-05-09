@@ -2,6 +2,7 @@ package tk.jackyliao123.proxy.server;
 
 import tk.jackyliao123.proxy.ChannelWrapper;
 import tk.jackyliao123.proxy.Constants;
+import tk.jackyliao123.proxy.Logger;
 import tk.jackyliao123.proxy.Util;
 import tk.jackyliao123.proxy.cipher.AESCipher;
 import tk.jackyliao123.proxy.server.event.ServerEncryptedPacketLengthListener;
@@ -36,15 +37,13 @@ public class ClientConnection {
         byte[] enc = cipher.encrypt(data);
         int length = enc.length;
         if (length % 16 != 0) {
-            System.err.println("Encryption failed: encrypted data size is not multiple of 16");
             throw new IOException("Encryption failed: encrypted data size is not multiple of 16");
         }
         if (length / 16 >= 256) {
-            System.err.println("Error: encrypted blocks is more than 256: " + length / 16);
             throw new IOException("Error: encrypted blocks is more than 256: " + length / 16);
         }
 
-        System.out.println("Sending: " + Util.bs2str(data));
+        Logger.debug("Sending: " + Util.bs2str(data));
 
         ByteBuffer b = ByteBuffer.allocate(length + 1);
         b.put((byte) (length / 16));
@@ -60,24 +59,23 @@ public class ClientConnection {
         switch (b[offset]) {
             case Constants.IPv4:
                 if (addrLen != 4) {
-                    System.err.println("Invalid length for IPv4 address: " + addrLen);
+                    Logger.error("Invalid length for IPv4 address: " + addrLen);
                 }
                 return new InetSocketAddress(InetAddress.getByAddress(address), port);
             case Constants.IPv6:
                 if (addrLen != 16) {
-                    System.err.println("Invalid length for IPv6 address: " + addrLen);
+                    Logger.error("Invalid length for IPv6 address: " + addrLen);
                 }
                 return new InetSocketAddress(InetAddress.getByAddress(address), port);
             case Constants.DNS:
                 return new InetSocketAddress(new String(address, Constants.CHARSET), port);
             default:
-                System.err.println("Unknown address type: " + b[offset]);
                 throw new IllegalArgumentException("Unknown address type: " + b[offset]);
         }
     }
 
     public void processPacket(byte[] data) throws IOException {
-        System.out.println("Received: " + Util.bs2str(data));
+        Logger.debug("Received: " + Util.bs2str(data));
 
         int connectionId;
         int remotePort;
