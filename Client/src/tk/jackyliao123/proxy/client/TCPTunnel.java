@@ -56,7 +56,6 @@ public class TCPTunnel {
         listener.onTcpConnect(connectionID, status, ping);
     }
 
-
     public void onReceive(int connectionID, byte[] packet) throws IOException {
         listener.onTcpPacket(connectionID, packet);
     }

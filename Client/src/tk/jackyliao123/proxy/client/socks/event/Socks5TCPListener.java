@@ -10,6 +10,7 @@ import tk.jackyliao123.proxy.client.socks.SocksClient;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 public class Socks5TCPListener implements TCPListener {
 	private final SocksClient client;
@@ -23,7 +24,7 @@ public class Socks5TCPListener implements TCPListener {
 
         ByteBuffer response;
         if (c.atyp == Socks5Constants.ATYP_DOMAIN) {
-            response = ByteBuffer.allocate(8 + c.addr.length);
+            response = ByteBuffer.allocate(7 + c.addr.length);
         } else {
             response = ByteBuffer.allocate(6 + c.addr.length);
         }

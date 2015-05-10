@@ -60,7 +60,6 @@ public class Socks5AddressListener implements ReadEventListener {
                 int id = client.getFreeId();
                 client.connections[id] = new Socks5ConnectionData(channel, atyp, addr, port);
                 client.getTCPTunnel().connect(id, type, addr, port);
-                Logger.debug("asdf");
                 break;
             case Socks5Constants.CMD_BIND:
                 // TODO: IMPLEMENT
