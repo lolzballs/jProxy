@@ -10,7 +10,7 @@ public class Util {
     }
 
     public static int bs2us(byte[] b, int offset) {
-        return (b[offset] << 8) + (b[offset + 1] & 0xFF);
+        return ((b[offset] & 0xFF) << 8) + (b[offset + 1] & 0xFF);
     }
 
     public static byte[] us2bs(int n) {

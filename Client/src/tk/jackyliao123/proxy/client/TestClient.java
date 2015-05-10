@@ -21,13 +21,15 @@ public class TestClient {
         this.processor = new EventProcessor();
         this.tunnel = new Tunnel(processor, secretKey, new TCPListener() {
             public void onTcpConnect(int connectionId, byte statusCode, int ping) throws IOException {
-                tunnel.tcp.send(0, "GET / HTTP/1.1\r\n\r\n".getBytes());
+                tunnel.tcp.send(connectionId, "GET / HTTP/1.1\r\n\r\n".getBytes());
                 System.out.println("connected to google with ping: " + ping + "ms");
             }
 
             public void onTcpPacket(int connectionId, byte[] packet) throws IOException {
                 System.out.println(new String(packet));
-                tunnel.tcp.send(0, "GET / HTTP/1.1\r\n\r\n".getBytes());
+                tunnel.tcp.send(connectionId, "GET / HTTP/1.1\r\n\r\n".getBytes());
+                tunnel.tcp.disconnect(connectionId == 0 ? Constants.MAX_CONNECTIONS - 1 : (connectionId - 1) % Constants.MAX_CONNECTIONS, (byte) -1);
+                tunnel.tcp.connect((connectionId + 1) % Constants.MAX_CONNECTIONS, Constants.DNS, "google.com".getBytes(), 80);
             }
 
             public void onTcpDisconnect(int connectionId, byte reason) throws IOException {
@@ -44,9 +46,9 @@ public class TestClient {
             processor.process(10);
         }
 
-        System.out.println("Connected successfully.");
+        tunnel.tcp.connect(0, Constants.DNS, "google.com".getBytes(), 80);
 
-//        tunnel.tcp.connect(0, "google.com", 80);
+        System.out.println("Connected successfully.");
 
         while (connected) {
             processor.process(Variables.timeout);

@@ -13,6 +13,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.channels.CancelledKeyException;
 
 public class ClientConnection {
     public Server server;
@@ -81,29 +82,36 @@ public class ClientConnection {
         int remotePort;
         int length;
         byte[] buffer;
-        switch (data[0]) {
-            case Constants.TCP_CONNECT:
-                connectionId = Util.bs2us(data, 1);
-                remotePort = Util.bs2us(data, 3);
-                tcp.connect(connectionId, getSocketAddress(data, 5, remotePort));
-                break;
-            case Constants.TCP_PACKET:
-                connectionId = Util.bs2us(data, 1);
-                length = Util.bs2us(data, 3);
-                buffer = new byte[length];
-                System.arraycopy(data, 5, buffer, 0, length);
-                tcp.packet(connectionId, buffer);
-                break;
-            case Constants.TCP_DISCONNECT:
-                connectionId = Util.bs2us(data, 1);
-                tcp.disconnect(connectionId);
-                break;
-            case Constants.UDP_ASSOCIATE:
-                break;
-            case Constants.UDP_PACKET:
-                break;
-            case Constants.UDP_DISSOCIATE:
-                break;
+
+        try {
+            switch (data[0]) {
+                case Constants.TCP_CONNECT:
+                    connectionId = Util.bs2us(data, 1);
+                    remotePort = Util.bs2us(data, 3);
+                    tcp.connect(connectionId, getSocketAddress(data, 5, remotePort));
+                    break;
+                case Constants.TCP_PACKET:
+                    connectionId = Util.bs2us(data, 1);
+                    length = Util.bs2us(data, 3);
+                    buffer = new byte[length];
+                    System.arraycopy(data, 5, buffer, 0, length);
+                    tcp.packet(connectionId, buffer);
+                    break;
+                case Constants.TCP_DISCONNECT:
+                    connectionId = Util.bs2us(data, 1);
+                    tcp.disconnect(connectionId);
+                    break;
+                case Constants.UDP_ASSOCIATE:
+                    break;
+                case Constants.UDP_PACKET:
+                    break;
+                case Constants.UDP_DISSOCIATE:
+                    break;
+            }
+        }
+        catch(CancelledKeyException e){
+            Logger.error("Error occurred whilst processing incoming packet");
+            Logger.error(e);
         }
     }
 }

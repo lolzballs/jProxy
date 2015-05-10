@@ -15,5 +15,6 @@ public class TunnelDisconnectListener implements DisconnectEventListener {
 
 	public void onDisconnect(ChannelWrapper c) throws IOException {
 		client.disconnect(c);
+        System.err.println("AWELFKJAS LKFDJDSASADOFIU SAI UFDAOID FLKSAJD FAS FLKAJS DFJ ZKXCVJ ");
 	}
 }

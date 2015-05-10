@@ -92,7 +92,7 @@ public class Logger {
                         Message m = queue.pop();
                         if (m.level >= level) {
                             if (m.t != null) {
-                                m.t.printStackTrace();
+                                m.t.printStackTrace(System.out);
                             }
                             if (m.message != null) {
                                 System.out.println("[" + messages[m.level] + "] " + m.message);

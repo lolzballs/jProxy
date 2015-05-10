@@ -14,6 +14,7 @@ import tk.jackyliao123.proxy.event.EventProcessor;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.CancelledKeyException;
 import java.nio.channels.SocketChannel;
 import java.security.GeneralSecurityException;
 
@@ -58,25 +59,31 @@ public class Tunnel {
         int ping;
         int length;
         byte[] packet;
-        switch (data[0]) {
-            case Constants.TCP_CONNECT:
-                connectionId = Util.bs2us(data, 1);
-                status = data[3];
-                ping = Util.bs2us(data, 4);
-                tcp.onConnect(connectionId, status, ping);
-                break;
-            case Constants.TCP_PACKET:
-                connectionId = Util.bs2us(data, 1);
-                length = Util.bs2us(data, 3);
-                packet = new byte[length];
-                System.arraycopy(data, 5, packet, 0, length);
-                tcp.onReceive(connectionId, packet);
-                break;
-            case Constants.TCP_DISCONNECT:
-                connectionId = Util.bs2us(data, 1);
-                status = data[3];
-                tcp.onDisconnect(connectionId, status);
-                break;
+        try {
+            switch (data[0]) {
+                case Constants.TCP_CONNECT:
+                    connectionId = Util.bs2us(data, 1);
+                    status = data[3];
+                    ping = Util.bs2us(data, 4);
+                    tcp.onConnect(connectionId, status, ping);
+                    break;
+                case Constants.TCP_PACKET:
+                    connectionId = Util.bs2us(data, 1);
+                    length = Util.bs2us(data, 3);
+                    packet = new byte[length];
+                    System.arraycopy(data, 5, packet, 0, length);
+                    tcp.onReceive(connectionId, packet);
+                    break;
+                case Constants.TCP_DISCONNECT:
+                    connectionId = Util.bs2us(data, 1);
+                    status = data[3];
+                    tcp.onDisconnect(connectionId, status);
+                    break;
+            }
+        }
+        catch(CancelledKeyException e){
+            Logger.error("Error occurred whilst processing incoming packet");
+            Logger.error(e);
         }
     }
 

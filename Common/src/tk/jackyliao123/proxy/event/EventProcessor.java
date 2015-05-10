@@ -45,6 +45,7 @@ public class EventProcessor {
                             int read = channel.read(b.buffer);
                             if (read == -1) {
                                 kill(channel);
+                                continue;
                             }
 
                             if (channel.isFullyRead()) {
@@ -120,7 +121,7 @@ public class EventProcessor {
                     }
                 }
             } catch (Exception e) {
-                Logger.error("Event processing has experienced an error on " + key.channel() + ", killing");
+                Logger.error("Event processing has experienced an error on " + key.channel());
                 kill((ChannelWrapper) key.attachment());
                 Logger.error(e);
             }
