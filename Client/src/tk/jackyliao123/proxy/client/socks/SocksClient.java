@@ -5,8 +5,8 @@ import tk.jackyliao123.proxy.Constants;
 import tk.jackyliao123.proxy.Logger;
 import tk.jackyliao123.proxy.client.Tunnel;
 import tk.jackyliao123.proxy.client.Variables;
-import tk.jackyliao123.proxy.client.event.TCPListener;
 import tk.jackyliao123.proxy.client.socks.event.Socks5MethodLengthListener;
+import tk.jackyliao123.proxy.client.socks.event.Socks5TCPListener;
 import tk.jackyliao123.proxy.event.AcceptEventListener;
 import tk.jackyliao123.proxy.event.DisconnectEventListener;
 import tk.jackyliao123.proxy.event.EventProcessor;
@@ -18,34 +18,24 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ServerSocketChannel;
+import java.util.ArrayDeque;
 
 public class SocksClient implements AcceptEventListener {
+    public final ChannelWrapper[] connections;
+    private final ArrayDeque<Integer> freeIds;
     private final EventProcessor processor;
     private final ServerSocketChannel serverChannel;
     private final Tunnel tunnel;
     private boolean connected = false;
     private boolean running = false;
 
-
     public SocksClient(int port, byte[] key) throws IOException {
+        this.connections = new ChannelWrapper[Constants.MAX_CONNECTIONS];
+        this.freeIds = new ArrayDeque<Integer>();
+
         this.processor = new EventProcessor();
         this.serverChannel = ServerSocketChannel.open();
-        this.tunnel = new Tunnel(processor, key, new TCPListener() {
-            @Override
-            public void onTcpConnect(int connectionId, byte statusCode, int ping) throws IOException {
-
-            }
-
-            @Override
-            public void onTcpPacket(int connectionId, byte[] packet) throws IOException {
-
-            }
-
-            @Override
-            public void onTcpDisconnect(int connectionId, byte reason) throws IOException {
-
-            }
-        });
+        this.tunnel = new Tunnel(processor, key, new Socks5TCPListener(this));
 
         tunnel.serverConnection.disconnectListener = new DisconnectEventListener() {
             @Override
@@ -59,6 +49,21 @@ public class SocksClient implements AcceptEventListener {
         serverChannel.bind(new InetSocketAddress(port));
 
         processor.registerServerChannel(serverChannel, this);
+        for (int i = Constants.MAX_CONNECTIONS - 1; i >= 0; --i) {
+            freeIds.push(i);
+        }
+    }
+
+    public int getFreeId() {
+        if (!freeIds.isEmpty()) {
+            return freeIds.pop();
+        }
+        Logger.error("Out of ids. This can cause severe errors");
+        return -1;
+    }
+
+    public void freeId(int id){
+        freeIds.push(id);
     }
 
     public void start() {

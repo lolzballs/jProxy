@@ -12,7 +12,7 @@ public class Socks5MethodLengthListener implements ReadEventListener {
     public void onRead(ChannelWrapper channel, byte[] array) throws IOException {
         byte version = array[0];
         if (version != Socks5Constants.VERSION) {
-            Logger.verbose("Client from " + channel + " connected with not-supported Socks version!");
+            Logger.verbose("Client from " + channel + " connected with not supported Socks version!");
         }
         byte methCount = array[1];
         channel.pushFillReadBuffer(ByteBuffer.allocate(methCount), new Socks5MethodsListener());
