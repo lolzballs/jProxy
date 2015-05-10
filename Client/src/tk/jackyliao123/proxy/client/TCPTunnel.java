@@ -1,6 +1,7 @@
 package tk.jackyliao123.proxy.client;
 
 import tk.jackyliao123.proxy.Constants;
+import tk.jackyliao123.proxy.Logger;
 import tk.jackyliao123.proxy.Util;
 import tk.jackyliao123.proxy.client.event.TCPListener;
 
@@ -16,8 +17,8 @@ public class TCPTunnel {
         this.listener = listener;
     }
 
-    public void connect(int connectionId, String remoteAddr, int remotePort) throws IOException {
-        byte[] remote = remoteAddr.getBytes();
+    public void connect(int connectionId, byte connectionType, byte[] remote, int remotePort) throws IOException {
+        Logger.debug("Connecting to: " + Util.bs2str(remote));
         if (remote.length >= 256) {
             throw new IOException("Address length too large");
         }
@@ -25,7 +26,7 @@ public class TCPTunnel {
         buffer.put(Constants.TCP_CONNECT);
         buffer.put(Util.us2bs(connectionId));
         buffer.put(Util.us2bs(remotePort));
-        buffer.put(Constants.DNS);
+        buffer.put(connectionType);
         buffer.put((byte) remote.length);
         buffer.put(remote);
         buffer.flip();

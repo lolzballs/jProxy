@@ -46,7 +46,7 @@ public class TestClient {
 
         System.out.println("Connected successfully.");
 
-        tunnel.tcp.connect(0, "google.com", 80);
+//        tunnel.tcp.connect(0, "google.com", 80);
 
         while (connected) {
             processor.process(Variables.timeout);
