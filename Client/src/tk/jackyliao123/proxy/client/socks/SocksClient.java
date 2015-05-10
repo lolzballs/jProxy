@@ -10,7 +10,6 @@ import tk.jackyliao123.proxy.client.socks.event.Socks5MethodLengthListener;
 import tk.jackyliao123.proxy.client.socks.event.Socks5TCPListener;
 import tk.jackyliao123.proxy.client.socks.event.TunnelDisconnectListener;
 import tk.jackyliao123.proxy.event.AcceptEventListener;
-import tk.jackyliao123.proxy.event.DisconnectEventListener;
 import tk.jackyliao123.proxy.event.EventProcessor;
 
 import java.io.DataInputStream;
