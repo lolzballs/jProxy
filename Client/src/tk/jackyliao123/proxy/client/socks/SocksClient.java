@@ -1,0 +1,113 @@
+package tk.jackyliao123.proxy.client.socks;
+
+import tk.jackyliao123.proxy.ChannelWrapper;
+import tk.jackyliao123.proxy.Constants;
+import tk.jackyliao123.proxy.Logger;
+import tk.jackyliao123.proxy.client.Tunnel;
+import tk.jackyliao123.proxy.client.Variables;
+import tk.jackyliao123.proxy.client.event.TCPListener;
+import tk.jackyliao123.proxy.client.socks.event.Socks5MethodLengthListener;
+import tk.jackyliao123.proxy.event.AcceptEventListener;
+import tk.jackyliao123.proxy.event.DisconnectEventListener;
+import tk.jackyliao123.proxy.event.EventProcessor;
+
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.ServerSocketChannel;
+
+public class SocksClient implements AcceptEventListener {
+    private final EventProcessor processor;
+    private final ServerSocketChannel serverChannel;
+    private final Tunnel tunnel;
+    private boolean connected = false;
+    private boolean running = false;
+
+
+    public SocksClient(int port, byte[] key) throws IOException {
+        this.processor = new EventProcessor();
+        this.serverChannel = ServerSocketChannel.open();
+        this.tunnel = new Tunnel(processor, key, new TCPListener() {
+            @Override
+            public void onTcpConnect(int connectionId, byte statusCode, int ping) throws IOException {
+
+            }
+
+            @Override
+            public void onTcpPacket(int connectionId, byte[] packet) throws IOException {
+
+            }
+
+            @Override
+            public void onTcpDisconnect(int connectionId, byte reason) throws IOException {
+
+            }
+        });
+
+        tunnel.serverConnection.disconnectListener = new DisconnectEventListener() {
+            @Override
+            public void onDisconnect(ChannelWrapper c) throws IOException {
+                connected = false;
+                System.out.println("Disconnected from " + c.channel);
+            }
+        };
+
+        serverChannel.configureBlocking(false);
+        serverChannel.bind(new InetSocketAddress(port));
+
+        processor.registerServerChannel(serverChannel, this);
+    }
+
+    public void start() {
+        running = true;
+        run();
+        processor.getSelector().wakeup();
+
+        try {
+            serverChannel.close();
+        } catch (IOException ignored) {
+        }
+    }
+
+    public void stop() {
+        running = false;
+    }
+
+    private void run() {
+        while (running) {
+            try {
+                processor.process(Variables.timeout);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public void onAccept(ChannelWrapper channel) throws IOException {
+        channel.pushFillReadBuffer(ByteBuffer.allocate(2), new Socks5MethodLengthListener());
+    }
+
+    public static void main(String[] args) {
+        Logger.init(Logger.DEBUG);
+
+        try {
+            DataInputStream input = new DataInputStream(new FileInputStream(new File("keys.dat")));
+            input.readUTF();
+            byte[] key = new byte[Constants.SECRET_SALT_SIZE];
+            input.readFully(key);
+
+            Variables.loadAllVariables(args);
+            Logger.setLoggingLevel(Variables.loggingLevel);
+
+            SocksClient client = new SocksClient(Variables.port, key);
+            client.start();
+        } catch (Exception e) {
+            Logger.error("SocksClient has experienced a critical error!");
+            Logger.error(e);
+        }
+    }
+}

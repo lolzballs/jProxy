@@ -13,8 +13,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 public class TestClient {
-    private final Tunnel tunnel;
     private final EventProcessor processor;
+    private final Tunnel tunnel;
     boolean connected = true;
 
     public TestClient(byte[] secretKey) throws IOException {
