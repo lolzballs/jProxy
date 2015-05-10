@@ -110,8 +110,7 @@ public class ClientConnection {
             }
         }
         catch(CancelledKeyException e){
-            Logger.error("Error occurred whilst processing incoming packet");
-            Logger.error(e);
+            Logger.warning("Cancelled key whilst processing incoming packet");
         }
     }
 }

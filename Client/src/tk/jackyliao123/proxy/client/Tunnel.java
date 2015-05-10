@@ -81,9 +81,8 @@ public class Tunnel {
                     break;
             }
         }
-        catch(CancelledKeyException e){
-            Logger.error("Error occurred whilst processing incoming packet");
-            Logger.error(e);
+        catch(CancelledKeyException e) {
+            Logger.warning("Cancelled key whilst processing incoming packet");
         }
     }
 
