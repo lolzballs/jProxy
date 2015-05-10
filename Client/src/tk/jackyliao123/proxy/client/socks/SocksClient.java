@@ -3,6 +3,7 @@ package tk.jackyliao123.proxy.client.socks;
 import tk.jackyliao123.proxy.ChannelWrapper;
 import tk.jackyliao123.proxy.Constants;
 import tk.jackyliao123.proxy.Logger;
+import tk.jackyliao123.proxy.client.TCPTunnel;
 import tk.jackyliao123.proxy.client.Tunnel;
 import tk.jackyliao123.proxy.client.Variables;
 import tk.jackyliao123.proxy.client.socks.event.Socks5MethodLengthListener;
@@ -22,21 +23,22 @@ import java.nio.channels.ServerSocketChannel;
 import java.util.ArrayDeque;
 
 public class SocksClient implements AcceptEventListener {
-    public final ChannelWrapper[] connections;
-    private final ArrayDeque<Integer> freeIds;
     private final EventProcessor processor;
     private final ServerSocketChannel serverChannel;
     private final Tunnel tunnel;
     private boolean connected = false;
     private boolean running = false;
 
-    public SocksClient(int port, byte[] key) throws IOException {
-        this.connections = new ChannelWrapper[Constants.MAX_CONNECTIONS];
-        this.freeIds = new ArrayDeque<Integer>();
+    public final ChannelWrapper[] connections;
+    private final ArrayDeque<Integer> freeIds;
 
+    public SocksClient(int port, byte[] key) throws IOException {
         this.processor = new EventProcessor();
         this.serverChannel = ServerSocketChannel.open();
         this.tunnel = new Tunnel(processor, key, new Socks5TCPListener(this));
+
+this.connections = new ChannelWrapper[Constants.MAX_CONNECTIONS];
+        this.freeIds = new ArrayDeque<Integer>();
 
         tunnel.serverConnection.disconnectListener = new TunnelDisconnectListener(this);
 
@@ -93,7 +95,11 @@ public class SocksClient implements AcceptEventListener {
 
     @Override
     public void onAccept(ChannelWrapper channel) throws IOException {
-        channel.pushFillReadBuffer(ByteBuffer.allocate(2), new Socks5MethodLengthListener());
+        channel.pushFillReadBuffer(ByteBuffer.allocate(2), new Socks5MethodLengthListener(this));
+    }
+
+    public TCPTunnel getTCPTunnel() {
+        return tunnel.tcp;
     }
 
     public static void main(String[] args) {

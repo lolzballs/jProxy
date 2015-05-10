@@ -16,8 +16,7 @@ public class TCPTunnel {
         this.listener = listener;
     }
 
-    public void connect(int connectionId, String remoteAddr, int remotePort) throws IOException {
-        byte[] remote = remoteAddr.getBytes();
+    public void connect(int connectionId, byte connectionType, byte[] remote, int remotePort) throws IOException {
         if (remote.length >= 256) {
             throw new IOException("Address length too large");
         }
@@ -25,7 +24,7 @@ public class TCPTunnel {
         buffer.put(Constants.TCP_CONNECT);
         buffer.put(Util.us2bs(connectionId));
         buffer.put(Util.us2bs(remotePort));
-        buffer.put(Constants.DNS);
+        buffer.put(connectionType);
         buffer.put((byte) remote.length);
         buffer.put(remote);
         buffer.flip();

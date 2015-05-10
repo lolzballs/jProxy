@@ -29,7 +29,6 @@ public class Constants {
     public static final byte UDP_PACKET = 0x22;
     public static final byte UDP_DISSOCIATE = 0x42;
 
-
     // TCP connection status
     public static final byte TCP_CONNECTION_OK = 0;
     public static final byte TCP_CONNECTION_GENERAL_FAIL = 1;
