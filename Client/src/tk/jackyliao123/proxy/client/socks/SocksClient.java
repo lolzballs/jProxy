@@ -7,6 +7,7 @@ import tk.jackyliao123.proxy.client.Tunnel;
 import tk.jackyliao123.proxy.client.Variables;
 import tk.jackyliao123.proxy.client.socks.event.Socks5MethodLengthListener;
 import tk.jackyliao123.proxy.client.socks.event.Socks5TCPListener;
+import tk.jackyliao123.proxy.client.socks.event.TunnelDisconnectListener;
 import tk.jackyliao123.proxy.event.AcceptEventListener;
 import tk.jackyliao123.proxy.event.DisconnectEventListener;
 import tk.jackyliao123.proxy.event.EventProcessor;
@@ -37,13 +38,7 @@ public class SocksClient implements AcceptEventListener {
         this.serverChannel = ServerSocketChannel.open();
         this.tunnel = new Tunnel(processor, key, new Socks5TCPListener(this));
 
-        tunnel.serverConnection.disconnectListener = new DisconnectEventListener() {
-            @Override
-            public void onDisconnect(ChannelWrapper c) throws IOException {
-                connected = false;
-                System.out.println("Disconnected from " + c.channel);
-            }
-        };
+        tunnel.serverConnection.disconnectListener = new TunnelDisconnectListener(this);
 
         serverChannel.configureBlocking(false);
         serverChannel.bind(new InetSocketAddress(port));
@@ -89,6 +84,11 @@ public class SocksClient implements AcceptEventListener {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void disconnect(ChannelWrapper c) {
+        connected = false;
+        System.out.println("Disconnected from " + c.channel);
     }
 
     @Override
