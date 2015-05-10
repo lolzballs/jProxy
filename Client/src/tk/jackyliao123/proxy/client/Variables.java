@@ -21,7 +21,7 @@ public class Variables {
     public static void loadAllVariables(String[] args) throws Exception {
         // TODO: Read from args
 
-        String serverIp = "aws.bcheng.cf";
+        String serverIp = "localhost";
         int serverPort = 16384;
 
         port = 1080;
