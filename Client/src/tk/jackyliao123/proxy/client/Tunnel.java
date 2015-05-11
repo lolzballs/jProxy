@@ -84,6 +84,10 @@ public class Tunnel {
         catch(CancelledKeyException e) {
             Logger.warning("Cancelled key whilst processing incoming packet");
         }
+        catch(Exception e){
+            Logger.error("Error happened");
+            Logger.error(e);
+        }
     }
 
     public void sendEncryptedPacket(byte[] packet) throws IOException {

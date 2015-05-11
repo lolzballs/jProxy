@@ -12,8 +12,10 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.CancelledKeyException;
+import java.nio.channels.UnresolvedAddressException;
 
 public class ClientConnection {
     public Server server;
@@ -88,7 +90,13 @@ public class ClientConnection {
                 case Constants.TCP_CONNECT:
                     connectionId = Util.bs2us(data, 1);
                     remotePort = Util.bs2us(data, 3);
-                    tcp.connect(connectionId, getSocketAddress(data, 5, remotePort));
+                    try {
+                        tcp.connect(connectionId, getSocketAddress(data, 5, remotePort));
+                    }
+                    catch(UnresolvedAddressException e){//TODO NONBLOCKING/ASYNC FIX
+                        Logger.warning("Unknown Host: " + e);
+                        tcp.sendConnect(connectionId, Constants.TCP_CONNECTION_UNKNOWN_HOST, 65535);
+                    }
                     break;
                 case Constants.TCP_PACKET:
                     connectionId = Util.bs2us(data, 1);
@@ -111,6 +119,10 @@ public class ClientConnection {
         }
         catch(CancelledKeyException e){
             Logger.warning("Cancelled key whilst processing incoming packet");
+        }
+        catch(Exception e){
+            Logger.error("Error happened");
+            Logger.error(e);
         }
     }
 }

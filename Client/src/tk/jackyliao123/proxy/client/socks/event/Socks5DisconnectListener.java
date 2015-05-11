@@ -14,6 +14,6 @@ public class Socks5DisconnectListener implements DisconnectEventListener {
     }
 
     public void onDisconnect(ChannelWrapper c) throws IOException {
-
+        //TODO IMPLEMENT DISCONNECT
     }
 }

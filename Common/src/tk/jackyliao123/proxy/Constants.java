@@ -35,6 +35,7 @@ public class Constants {
     public static final byte TCP_CONNECTION_REFUSED = 2;
     public static final byte TCP_CONNECTION_TIMEOUT = 3;
     public static final byte TCP_CONNECTION_UNREACHABLE = 4;
+    public static final byte TCP_CONNECTION_UNKNOWN_HOST = 5;
 
     public static final byte TCP_DISCONNECT_GENERAL = 1;
     public static final byte TCP_DISCONNECT_CLIENT = 2;

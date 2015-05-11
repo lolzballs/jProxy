@@ -42,7 +42,7 @@ public class SocksClient implements AcceptEventListener {
         tunnel.serverConnection.disconnectListener = new TunnelDisconnectListener(this);
 
         serverChannel.configureBlocking(false);
-        serverChannel.bind(new InetSocketAddress(port));
+        serverChannel.socket().bind(new InetSocketAddress(port));
 
         processor.registerServerChannel(serverChannel, this);
         for (int i = Constants.MAX_CONNECTIONS - 1; i >= 0; --i) {
