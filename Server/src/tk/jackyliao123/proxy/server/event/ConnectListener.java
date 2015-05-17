@@ -44,7 +44,7 @@ public class ConnectListener implements ConnectEventListener {
                 } else if (message.equals("Connection timed out")) {
                     status = Constants.TCP_CONNECTION_TIMEOUT;
                 } else {
-                    Logger.error("Unknown TCP connection error: " + e.getMessage());
+                    Logger.warning("Unknown TCP connection error: " + e.getMessage());
                     status = Constants.TCP_CONNECTION_GENERAL_FAIL;
                 }
                 handler.sendConnect(connectionId, status, timeTaken);

@@ -6,10 +6,7 @@ import tk.jackyliao123.proxy.event.ReadEventListener;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.ByteChannel;
-import java.nio.channels.DatagramChannel;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.SocketChannel;
+import java.nio.channels.*;
 import java.nio.channels.spi.AbstractSelectableChannel;
 import java.util.ArrayDeque;
 
@@ -25,6 +22,7 @@ public class ChannelWrapper {
     public ConnectEventListener connectListener;
     public DisconnectEventListener disconnectListener;
     private boolean shouldClose = false;
+    private boolean isClosed = false;
 
     public ChannelWrapper(SocketChannel channel, SelectionKey key) {
         this.channel = channel;
@@ -48,28 +46,51 @@ public class ChannelWrapper {
         return ((ByteChannel) channel).write(buffer);
     }
 
-    public void close() throws IOException {
-        try {
-            if (disconnectListener != null) {
-                disconnectListener.onDisconnect(this);
+    public void close() {
+        if(!isClosed) {
+            isClosed = true;
+            try {
+                if (disconnectListener != null) {
+                    disconnectListener.onDisconnect(this);
+                }
+            } catch (Exception e) {
+                Logger.error("onDisconnect has experienced an error");
+                Logger.error(e);
             }
-        } catch (Exception e) {
-            Logger.error("onDisconnect has experienced an error");
-            Logger.error(e);
+            try {
+                channel.close();
+            } catch (Exception e) {
+                Logger.error("channel.close() has experienced an error");
+                Logger.error(e);
+            }
         }
-        channel.close();
     }
 
     public void closeOnFinishData() {
         shouldClose = true;
+        if (writeBuffers.isEmpty()) {
+            close();
+        }
+    }
+
+    public boolean shouldClose(){
+        return shouldClose;
     }
 
     public void addInterest(int op) {
-        selectionKey.interestOps(selectionKey.interestOps() | op);
+        try {
+            selectionKey.interestOps(selectionKey.interestOps() | op);
+        } catch (CancelledKeyException e) {
+            close();
+        }
     }
 
     public void removeInterest(int op) {
-        selectionKey.interestOps(selectionKey.interestOps() & (~op));
+        try {
+            selectionKey.interestOps(selectionKey.interestOps() & (~op));
+        } catch (CancelledKeyException e) {
+            close();
+        }
     }
 
     public void pushDumpReadBuffer(ReadEventListener listener) {
@@ -111,9 +132,6 @@ public class ChannelWrapper {
         ByteBuffer b = writeBuffers.removeFirst();
         if (writeBuffers.isEmpty()) {
             removeInterest(SelectionKey.OP_WRITE);
-            if (shouldClose) {
-                close();
-            }
         }
         return b;
     }

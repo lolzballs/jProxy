@@ -38,6 +38,21 @@ public class Server implements AcceptEventListener {
         processor.registerServerChannel(serverChannel, this);
     }
 
+    public static void main(String[] args) {
+        Logger.init(Logger.DEBUG);
+
+        try {
+            Variables.loadAllVariables(args);
+            Logger.setLoggingLevel(Variables.loggingLevel);
+
+            Server server = new Server(Variables.serverPort);
+            server.start();
+        } catch (Exception e) {
+            Logger.error("Server has experienced a critical error");
+            Logger.error(e);
+        }
+    }
+
     @Override
     public void onAccept(ChannelWrapper channel) throws IOException {
         channel.pushFillReadBuffer(ByteBuffer.allocate(Constants.MAGIC_LENGTH + 2), handshakeListener);
@@ -66,21 +81,6 @@ public class Server implements AcceptEventListener {
                 Logger.error("Server has experienced an error during event processing");
                 Logger.error(e);
             }
-        }
-    }
-
-    public static void main(String[] args) {
-        Logger.init(Logger.DEBUG);
-
-        try {
-            Variables.loadAllVariables(args);
-            Logger.setLoggingLevel(Variables.loggingLevel);
-
-            Server server = new Server(Variables.serverPort);
-            server.start();
-        } catch (Exception e) {
-            Logger.error("Server has experienced a critical error");
-            Logger.error(e);
         }
     }
 }

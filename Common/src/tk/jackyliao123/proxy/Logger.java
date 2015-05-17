@@ -18,6 +18,10 @@ public class Logger {
         thread.start();
     }
 
+    public static byte getLoggingLevel() {
+        return level;
+    }
+
     public static void setLoggingLevel(byte level) {
         Logger.level = level;
     }
@@ -81,6 +85,10 @@ public class Logger {
     }
 
     public static class LogThread extends Thread {
+        public LogThread() {
+            setDaemon(true);
+        }
+
         public void run() {
             while (true) {
                 try {

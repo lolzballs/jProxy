@@ -80,12 +80,10 @@ public class Tunnel {
                     tcp.onDisconnect(connectionId, status);
                     break;
             }
-        }
-        catch(CancelledKeyException e) {
+        } catch (CancelledKeyException e) {
             Logger.warning("Cancelled key whilst processing incoming packet");
-        }
-        catch(Exception e){
-            Logger.error("Error happened");
+        } catch (Exception e) {
+            Logger.error("Error occurred");
             Logger.error(e);
         }
     }

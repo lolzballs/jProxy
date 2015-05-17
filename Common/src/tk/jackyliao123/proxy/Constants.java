@@ -4,7 +4,7 @@ public class Constants {
     // Handshake Constants
     public static final byte[] MAGIC = new byte[]{'j', 'P', 'r', 'o', 'x', 'y'};
     public static final byte MAJOR = 2;
-    public static final byte MINOR = 0;
+    public static final byte MINOR = 1;
     public static final int MAGIC_LENGTH = MAGIC.length;
 
     // Initalization return codes
@@ -40,9 +40,11 @@ public class Constants {
     public static final byte TCP_DISCONNECT_GENERAL = 1;
     public static final byte TCP_DISCONNECT_CLIENT = 2;
     public static final byte TCP_DISCONNECT_BROKEN_PIPE = 3;
+    public static final byte TCP_DISCONNECT_CONNECTION_RESET = 4;
 
     public static final int BUFFER_SIZE = 2048;
     public static final int MAX_CONNECTIONS = 1024;
+    public static final int MAX_QUEUE = 256;
 
     // Crypto
     public static final String RSA_ALGORITHM = "RSA";

@@ -20,23 +20,23 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ServerSocketChannel;
 import java.util.ArrayDeque;
+import java.util.HashMap;
 
 public class SocksClient implements AcceptEventListener {
     public final EventProcessor processor;
+    public final HashMap<Integer, Socks5ConnectionData> connections;
     private final ServerSocketChannel serverChannel;
     private final Tunnel tunnel;
+    private final ArrayDeque<Integer> freeIds;
     private boolean connected = false;
     private boolean running = false;
-
-    public final Socks5ConnectionData[] connections;
-    private final ArrayDeque<Integer> freeIds;
 
     public SocksClient(int port, byte[] key) throws IOException {
         this.processor = new EventProcessor();
         this.serverChannel = ServerSocketChannel.open();
         this.tunnel = new Tunnel(processor, key, new Socks5TCPListener(this));
 
-        this.connections = new Socks5ConnectionData[Constants.MAX_CONNECTIONS];
+        this.connections = new HashMap<Integer, Socks5ConnectionData>();
         this.freeIds = new ArrayDeque<Integer>();
 
         tunnel.serverConnection.disconnectListener = new TunnelDisconnectListener(this);
@@ -58,7 +58,7 @@ public class SocksClient implements AcceptEventListener {
         return -1;
     }
 
-    public void freeId(int id){
+    public void freeId(int id) {
         freeIds.push(id);
     }
 
@@ -100,6 +100,7 @@ public class SocksClient implements AcceptEventListener {
     public TCPTunnel getTCPTunnel() {
         return tunnel.tcp;
     }
+
 
     public static void main(String[] args) {
         Logger.init(Logger.DEBUG);

@@ -10,7 +10,6 @@ import tk.jackyliao123.proxy.client.socks.SocksClient;
 import tk.jackyliao123.proxy.event.ReadEventListener;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 public class Socks5AddressListener implements ReadEventListener {
     private final SocksClient client;
@@ -58,8 +57,9 @@ public class Socks5AddressListener implements ReadEventListener {
         switch (cmd) {
             case Socks5Constants.CMD_CONNECT:
                 int id = client.getFreeId();
-                client.connections[id] = new Socks5ConnectionData(channel, atyp, addr, port);
+                client.connections.put(id, new Socks5ConnectionData(channel, atyp, addr, port));
                 client.getTCPTunnel().connect(id, type, addr, port);
+                Logger.info("Client from " + channel.channel + "(" + id + ") is attempting to connect to remote: " + Util.addr2str(type, addr));
                 break;
             case Socks5Constants.CMD_BIND:
                 // TODO: IMPLEMENT

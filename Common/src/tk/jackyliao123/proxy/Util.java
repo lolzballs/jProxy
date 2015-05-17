@@ -1,5 +1,7 @@
 package tk.jackyliao123.proxy;
 
+import java.io.UnsupportedEncodingException;
+
 public class Util {
     public static int b2ub(byte b) {
         return b & 0xFF;
@@ -21,15 +23,18 @@ public class Util {
     }
 
     public static String bs2str(byte[] b) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < b.length; ++i) {
-            String s = Integer.toHexString(b[i] & 0xFF).toUpperCase();
-            if (s.length() == 1) {
-                sb.append('0');
+        if (Logger.getLoggingLevel() <= Logger.DEBUG) {
+            StringBuilder sb = new StringBuilder();
+            for (byte aB : b) {
+                String s = Integer.toHexString(aB & 0xFF).toUpperCase();
+                if (s.length() == 1) {
+                    sb.append('0');
+                }
+                sb.append(s);
             }
-            sb.append(s);
+            return sb.toString();
         }
-        return sb.toString();
+        return "";
     }
 
     public static boolean bseq(byte[] b1, byte[] b2) {
@@ -49,4 +54,25 @@ public class Util {
     }
 
 
+    public static String addr2str(byte type, byte[] addr) {
+        if (type == Constants.DNS) {
+            try {
+                return new String(addr, Constants.CHARSET);
+            } catch (UnsupportedEncodingException e) {
+                return new String(addr);//TODO TODO TODO FIX ALL STRING WITH THIS ERROR
+            }
+        } else if (type == Constants.IPv4) {
+            return b2ub(addr[0]) + "." + b2ub(addr[1]) + "." + b2ub(addr[2]) + "." + b2ub(addr[3]);
+        } else if (type == Constants.IPv6) {
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < addr.length; i += 2) {
+                builder.append(Integer.toHexString(b2ub(addr[i]) << 8 + b2ub(addr[i + 1])));
+                if (i < addr.length - 2) {
+                    builder.append(":");
+                }
+            }
+            return builder.toString();
+        }
+        return "";
+    }
 }

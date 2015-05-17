@@ -53,6 +53,7 @@ public class TCPHandler {
     public void connect(int connectionId, SocketAddress addr) throws IOException {
         Logger.verbose("Connect: " + addr);
         if (tcpConnections[connectionId] != null) {
+            tcpConnections[connectionId].disconnectListener = null;
             tcpConnections[connectionId].closeOnFinishData();
         }
         try {
@@ -67,18 +68,25 @@ public class TCPHandler {
 
     public void packet(int connectionId, byte[] packet) throws IOException {
         if (tcpConnections[connectionId] != null) {
-            ByteBuffer b = ByteBuffer.allocate(packet.length);
-            b.put(packet);
-            b.flip();
-            tcpConnections[connectionId].pushWriteBuffer(b);
+                ByteBuffer b = ByteBuffer.allocate(packet.length);
+                b.put(packet);
+                b.flip();
+                tcpConnections[connectionId].pushWriteBuffer(b);
         }
     }
 
-    public void disconnect(int connectionId) throws IOException {
+    public void disconnect(int connectionId, byte reason) throws IOException {
+        closeConnection(connectionId, true);
+        sendDisconnect(connectionId, reason);
+    }
+
+    public void closeConnection(int connectionId, boolean event) throws IOException {
         if (tcpConnections[connectionId] != null) {
+            if(!event){
+                tcpConnections[connectionId].disconnectListener = null;
+            }
             tcpConnections[connectionId].closeOnFinishData();
         }
         tcpConnections[connectionId] = null;
-        sendDisconnect(connectionId, Constants.TCP_DISCONNECT_CLIENT);
     }
 }

@@ -13,9 +13,9 @@ public class TunnelDisconnectListener implements DisconnectEventListener {
         this.client = client;
     }
 
-	public void onDisconnect(ChannelWrapper c) throws IOException {
-		client.disconnect(c);
+    public void onDisconnect(ChannelWrapper c) throws IOException {
+        client.disconnect(c);
         System.err.println("Disconnected");
-        System.exit(-1);
-	}
+        System.exit(0);
+    }
 }

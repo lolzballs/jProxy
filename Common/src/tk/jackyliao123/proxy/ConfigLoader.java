@@ -12,12 +12,21 @@ public class ConfigLoader {
 
         HashMap<String, String> properties = new HashMap<String, String>();
         String line;
+        int lineN = 0;
         while ((line = reader.readLine()) != null) {
-            if (line.charAt(0) == '#') {
+            ++lineN;
+            if (line.trim().length() == 0) {
+                continue;
+            }
+            if (line.trim().startsWith("#")) {
                 continue;
             }
             String[] strings = line.split("=");
-            properties.put(strings[0], strings[1]);
+            if(strings.length != 2){
+                Logger.error("Invalid config file, wrong number of '=' at line " + lineN);
+                continue;
+            }
+            properties.put(strings[0].trim(), strings[1].trim());
         }
         return properties;
     }

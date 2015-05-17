@@ -10,13 +10,13 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public class Socks5RequestListener implements ReadEventListener {
-	public SocksClient client;
+    public SocksClient client;
 
-	public Socks5RequestListener(SocksClient client) {
-		this.client = client;
-	}
+    public Socks5RequestListener(SocksClient client) {
+        this.client = client;
+    }
 
-	public void onRead(ChannelWrapper channel, byte[] array) throws IOException {
+    public void onRead(ChannelWrapper channel, byte[] array) throws IOException {
         byte version = array[0];
         if (version != Socks5Constants.VERSION) {
             Logger.error("Client tried using unsupported version " + version + " after connected with supported version!");
@@ -31,7 +31,7 @@ public class Socks5RequestListener implements ReadEventListener {
                 channel.pushFillReadBuffer(ByteBuffer.allocate(6), new Socks5AddressListener(client, array[3], array[1]));
                 break;
             case Socks5Constants.ATYP_DOMAIN:
-				channel.pushFillReadBuffer(ByteBuffer.allocate(1), new Socks5DomainLengthListener(client, array[1]));
+                channel.pushFillReadBuffer(ByteBuffer.allocate(1), new Socks5DomainLengthListener(client, array[1]));
                 break;
             case Socks5Constants.ATYP_IPv6:
                 channel.pushFillReadBuffer(ByteBuffer.allocate(18), new Socks5AddressListener(client, array[3], array[1]));
@@ -39,5 +39,5 @@ public class Socks5RequestListener implements ReadEventListener {
             default:
                 Logger.warning("Unsupported request AYTP: " + Integer.toHexString(array[2]));
         }
-	}
+    }
 }

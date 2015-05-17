@@ -45,6 +45,7 @@ public class EventProcessor {
                             int read = channel.read(b.buffer);
                             if (read == -1) {
                                 kill(channel);
+                                keys.remove();
                                 continue;
                             }
 
@@ -77,6 +78,9 @@ public class EventProcessor {
 
                             if (channel.isFullyWritten()) {
                                 channel.popWriteBuffer();
+                                if(channel.getWriteBuffer() == null && channel.shouldClose()){
+                                    channel.close();
+                                }
                             }
                         }
                     }
@@ -120,6 +124,13 @@ public class EventProcessor {
                         }
                     }
                 }
+            } catch (IOException e) {
+                if (e.getMessage().equals("Connection reset by peer")) {
+                    Logger.info("Connection Reset: " + key.channel());
+                } else {
+                    Logger.warning("IO error happened");
+                }
+                kill((ChannelWrapper) key.attachment());
             } catch (Exception e) {
                 Logger.error("Event processing has experienced an error on " + key.channel());
                 kill((ChannelWrapper) key.attachment());
@@ -143,13 +154,7 @@ public class EventProcessor {
     }
 
     public void kill(ChannelWrapper channel) {
-        try {
-            channel.close();
-        } catch (IOException e) {
-            Logger.error("Unable to kill connection");
-            Logger.error(e);
-        }
-
-        Logger.info("Connection closed: " + channel.channel);
+        channel.close();
+        Logger.info("Connection killed: " + channel.channel);
     }
 }

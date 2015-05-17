@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.CancelledKeyException;
 import java.nio.channels.UnresolvedAddressException;
@@ -92,10 +91,9 @@ public class ClientConnection {
                     remotePort = Util.bs2us(data, 3);
                     try {
                         tcp.connect(connectionId, getSocketAddress(data, 5, remotePort));
-                    }
-                    catch(UnresolvedAddressException e){//TODO NONBLOCKING/ASYNC FIX
-                        Logger.warning("Unknown Host: " + e);
+                    } catch (UnresolvedAddressException e) {
                         tcp.sendConnect(connectionId, Constants.TCP_CONNECTION_UNKNOWN_HOST, 65535);
+                        Logger.warning("Unresolved address received");
                     }
                     break;
                 case Constants.TCP_PACKET:
@@ -107,21 +105,22 @@ public class ClientConnection {
                     break;
                 case Constants.TCP_DISCONNECT:
                     connectionId = Util.bs2us(data, 1);
-                    tcp.disconnect(connectionId);
+                    tcp.closeConnection(connectionId, false);
                     break;
                 case Constants.UDP_ASSOCIATE:
+                    //TODO IMPLEMENT
                     break;
                 case Constants.UDP_PACKET:
+                    //TODO IMPLEMENT
                     break;
                 case Constants.UDP_DISSOCIATE:
+                    //TODO IMPLEMENT
                     break;
             }
-        }
-        catch(CancelledKeyException e){
+        } catch (CancelledKeyException e) {
             Logger.warning("Cancelled key whilst processing incoming packet");
-        }
-        catch(Exception e){
-            Logger.error("Error happened");
+        } catch (Exception e) {
+            Logger.error("Error occurred");
             Logger.error(e);
         }
     }
