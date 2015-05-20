@@ -1,9 +1,6 @@
 package tk.jackyliao123.proxy.server;
 
-import tk.jackyliao123.proxy.ChannelWrapper;
-import tk.jackyliao123.proxy.Constants;
-import tk.jackyliao123.proxy.Logger;
-import tk.jackyliao123.proxy.Util;
+import tk.jackyliao123.proxy.*;
 import tk.jackyliao123.proxy.cipher.AESCipher;
 import tk.jackyliao123.proxy.server.event.ServerEncryptedPacketLengthListener;
 import tk.jackyliao123.proxy.server.event.ServerEncryptedPacketListener;
@@ -21,10 +18,10 @@ public class ClientConnection {
     public AESCipher cipher;
     public ServerEncryptedPacketLengthListener packetLengthListener;
     public ServerEncryptedPacketListener packetListener;
-    private ChannelWrapper channel;
+    private TunnelChannelWrapper channel;
     private TCPHandler tcp;
 
-    public ClientConnection(Server server, ChannelWrapper channel, AESCipher cipher) {
+    public ClientConnection(Server server, TunnelChannelWrapper channel, AESCipher cipher) {
         this.server = server;
         this.channel = channel;
         this.tcp = new TCPHandler(this);
@@ -83,6 +80,7 @@ public class ClientConnection {
         int remotePort;
         int length;
         byte[] buffer;
+        byte reason;
 
         try {
             switch (data[0]) {
@@ -105,7 +103,8 @@ public class ClientConnection {
                     break;
                 case Constants.TCP_DISCONNECT:
                     connectionId = Util.bs2us(data, 1);
-                    tcp.closeConnection(connectionId, false);
+                    reason = data[3];
+                    tcp.disconnect(connectionId, reason);
                     break;
                 case Constants.UDP_ASSOCIATE:
                     //TODO IMPLEMENT

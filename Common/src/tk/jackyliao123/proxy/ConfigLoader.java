@@ -22,7 +22,7 @@ public class ConfigLoader {
                 continue;
             }
             String[] strings = line.split("=");
-            if(strings.length != 2){
+            if (strings.length != 2) {
                 Logger.error("Invalid config file, wrong number of '=' at line " + lineN);
                 continue;
             }

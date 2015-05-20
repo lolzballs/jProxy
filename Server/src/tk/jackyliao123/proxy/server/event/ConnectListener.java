@@ -32,7 +32,7 @@ public class ConnectListener implements ConnectEventListener {
                     return true;
                 } else {
                     handler.sendConnect(connectionId, Constants.TCP_CONNECTION_GENERAL_FAIL, timeTaken);
-                    handler.tcpConnections[connectionId] = null;
+                    handler.tcpConnections.remove(connectionId);
                 }
             } catch (SocketException e) {
                 String message = e.getMessage();
@@ -48,11 +48,11 @@ public class ConnectListener implements ConnectEventListener {
                     status = Constants.TCP_CONNECTION_GENERAL_FAIL;
                 }
                 handler.sendConnect(connectionId, status, timeTaken);
-                handler.tcpConnections[connectionId] = null;
+                handler.tcpConnections.remove(connectionId);
                 Logger.error(e);
             } catch (IOException e) {
                 handler.sendConnect(connectionId, Constants.TCP_CONNECTION_GENERAL_FAIL, timeTaken);
-                handler.tcpConnections[connectionId] = null;
+                handler.tcpConnections.remove(connectionId);
                 Logger.error(e);
             }
         }

@@ -3,6 +3,7 @@ package tk.jackyliao123.proxy.event;
 import tk.jackyliao123.proxy.BufferFiller;
 import tk.jackyliao123.proxy.ChannelWrapper;
 import tk.jackyliao123.proxy.Logger;
+import tk.jackyliao123.proxy.TunnelChannelWrapper;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -78,7 +79,7 @@ public class EventProcessor {
 
                             if (channel.isFullyWritten()) {
                                 channel.popWriteBuffer();
-                                if(channel.getWriteBuffer() == null && channel.shouldClose()){
+                                if (channel.getWriteBuffer() == null && channel.shouldClose()) {
                                     channel.close();
                                 }
                             }
@@ -148,6 +149,14 @@ public class EventProcessor {
     public ChannelWrapper registerSocketChannel(SocketChannel channel, ConnectEventListener listener) throws IOException {
         SelectionKey key = channel.register(selector, SelectionKey.OP_CONNECT);
         ChannelWrapper wrapper = new ChannelWrapper(channel, key);
+        wrapper.connectListener = listener;
+        key.attach(wrapper);
+        return wrapper;
+    }
+
+    public TunnelChannelWrapper registerTunnelChannel(SocketChannel channel, ConnectEventListener listener) throws IOException {
+        SelectionKey key = channel.register(selector, SelectionKey.OP_CONNECT);
+        TunnelChannelWrapper wrapper = new TunnelChannelWrapper(channel, key);
         wrapper.connectListener = listener;
         key.attach(wrapper);
         return wrapper;

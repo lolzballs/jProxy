@@ -68,7 +68,8 @@ public class Socks5TCPListener implements TCPListener {
         c.client.pushWriteBuffer(response);
 
         if (statusCode != Constants.TCP_CONNECTION_OK) {
-            c.client.closeOnFinishData();
+            Logger.info("Remote connection to id " + connectionId + " failed. (" + statusCode + ")");
+            onTcpDisconnect(connectionId, Constants.TCP_DISCONNECT_GENERAL);
             return;
         }
 

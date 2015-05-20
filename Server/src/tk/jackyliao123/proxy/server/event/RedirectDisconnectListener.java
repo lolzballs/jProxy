@@ -17,6 +17,7 @@ public class RedirectDisconnectListener implements DisconnectEventListener {
     }
 
     public void onDisconnect(ChannelWrapper c) throws IOException {
-        handler.disconnect(connectionId, Constants.TCP_DISCONNECT_BROKEN_PIPE);
+        handler.closeConnection(connectionId);
+        handler.sendDisconnect(connectionId, Constants.TCP_DISCONNECT_CONNECTION_RESET);
     }
 }

@@ -13,8 +13,8 @@ import java.util.ArrayDeque;
 public class ChannelWrapper {
     public final AbstractSelectableChannel channel;
     public final SelectionKey selectionKey;
-    private final ArrayDeque<BufferFiller> readBuffers;
-    private final ArrayDeque<ByteBuffer> writeBuffers;
+    protected final ArrayDeque<BufferFiller> readBuffers;
+    protected final ArrayDeque<ByteBuffer> writeBuffers;
 
     public long currentTimestamp = System.currentTimeMillis();
 
@@ -47,7 +47,7 @@ public class ChannelWrapper {
     }
 
     public void close() {
-        if(!isClosed) {
+        if (!isClosed) {
             isClosed = true;
             try {
                 if (disconnectListener != null) {
@@ -73,7 +73,7 @@ public class ChannelWrapper {
         }
     }
 
-    public boolean shouldClose(){
+    public boolean shouldClose() {
         return shouldClose;
     }
 

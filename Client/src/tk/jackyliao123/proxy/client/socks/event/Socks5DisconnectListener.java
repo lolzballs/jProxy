@@ -17,6 +17,7 @@ public class Socks5DisconnectListener implements DisconnectEventListener {
     }
 
     public void onDisconnect(ChannelWrapper c) throws IOException {
+        client.freeId(connectionId);
         client.getTCPTunnel().disconnect(connectionId, Constants.TCP_DISCONNECT_CONNECTION_RESET);
     }
 }

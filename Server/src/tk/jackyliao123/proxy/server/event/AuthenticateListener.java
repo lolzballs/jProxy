@@ -3,6 +3,7 @@ package tk.jackyliao123.proxy.server.event;
 import tk.jackyliao123.proxy.ChannelWrapper;
 import tk.jackyliao123.proxy.Constants;
 import tk.jackyliao123.proxy.Logger;
+import tk.jackyliao123.proxy.TunnelChannelWrapper;
 import tk.jackyliao123.proxy.cipher.AESCipher;
 import tk.jackyliao123.proxy.event.ReadEventListener;
 import tk.jackyliao123.proxy.server.ClientConnection;
@@ -13,6 +14,7 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
 import java.security.GeneralSecurityException;
 import java.security.KeyFactory;
 import java.security.PublicKey;
@@ -71,7 +73,8 @@ public class AuthenticateListener implements ReadEventListener {
             byte[] aesKey = key.getEncoded();
             sendAccepted(channel, clientKey, aesKey);
 
-            ClientConnection connection = new ClientConnection(server, channel, new AESCipher(key));
+            TunnelChannelWrapper tunnelWrapper = new TunnelChannelWrapper((SocketChannel) channel.channel, channel.selectionKey);
+            ClientConnection connection = new ClientConnection(server, tunnelWrapper, new AESCipher(key));
             server.connections.put(user, connection);
             channel.pushFillReadBuffer(ByteBuffer.allocate(1), connection.packetLengthListener);
 

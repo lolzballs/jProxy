@@ -6,9 +6,9 @@ import tk.jackyliao123.proxy.Logger;
 import tk.jackyliao123.proxy.client.TCPTunnel;
 import tk.jackyliao123.proxy.client.Tunnel;
 import tk.jackyliao123.proxy.client.Variables;
+import tk.jackyliao123.proxy.client.event.TunnelDisconnectListener;
 import tk.jackyliao123.proxy.client.socks.event.Socks5MethodLengthListener;
 import tk.jackyliao123.proxy.client.socks.event.Socks5TCPListener;
-import tk.jackyliao123.proxy.client.socks.event.TunnelDisconnectListener;
 import tk.jackyliao123.proxy.event.AcceptEventListener;
 import tk.jackyliao123.proxy.event.EventProcessor;
 
@@ -47,6 +47,26 @@ public class SocksClient implements AcceptEventListener {
         processor.registerServerChannel(serverChannel, this);
         for (int i = Constants.MAX_CONNECTIONS - 1; i >= 0; --i) {
             freeIds.push(i);
+        }
+    }
+
+    public static void main(String[] args) {
+        Logger.init(Logger.DEBUG);
+
+        try {
+            DataInputStream input = new DataInputStream(new FileInputStream(new File("keys.dat")));
+            input.readUTF();
+            byte[] key = new byte[Constants.SECRET_SALT_SIZE];
+            input.readFully(key);
+
+            Variables.loadAllVariables(args);
+            Logger.setLoggingLevel(Variables.loggingLevel);
+
+            SocksClient client = new SocksClient(Variables.port, key);
+            client.start();
+        } catch (Exception e) {
+            Logger.error("SocksClient has experienced a critical error!");
+            Logger.error(e);
         }
     }
 
@@ -99,26 +119,5 @@ public class SocksClient implements AcceptEventListener {
 
     public TCPTunnel getTCPTunnel() {
         return tunnel.tcp;
-    }
-
-
-    public static void main(String[] args) {
-        Logger.init(Logger.DEBUG);
-
-        try {
-            DataInputStream input = new DataInputStream(new FileInputStream(new File("keys.dat")));
-            input.readUTF();
-            byte[] key = new byte[Constants.SECRET_SALT_SIZE];
-            input.readFully(key);
-
-            Variables.loadAllVariables(args);
-            Logger.setLoggingLevel(Variables.loggingLevel);
-
-            SocksClient client = new SocksClient(Variables.port, key);
-            client.start();
-        } catch (Exception e) {
-            Logger.error("SocksClient has experienced a critical error!");
-            Logger.error(e);
-        }
     }
 }

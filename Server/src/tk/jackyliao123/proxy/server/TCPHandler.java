@@ -10,15 +10,16 @@ import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.util.HashMap;
 
 public class TCPHandler {
-    public ChannelWrapper[] tcpConnections;
+    public HashMap<Integer, ChannelWrapper> tcpConnections;
     private ClientConnection client;
 
     public TCPHandler(ClientConnection client) {
         this.client = client;
 
-        this.tcpConnections = new ChannelWrapper[Constants.MAX_CONNECTIONS];
+        this.tcpConnections = new HashMap<Integer, ChannelWrapper>();
     }
 
     public void sendConnect(int connectionId, byte responseCode, int ping) throws IOException {
@@ -52,41 +53,58 @@ public class TCPHandler {
 
     public void connect(int connectionId, SocketAddress addr) throws IOException {
         Logger.verbose("Connect: " + addr);
-        if (tcpConnections[connectionId] != null) {
-            tcpConnections[connectionId].disconnectListener = null;
-            tcpConnections[connectionId].closeOnFinishData();
+        ChannelWrapper prevConnection = tcpConnections.get(connectionId);
+        if (prevConnection != null) {
+            Logger.warning("Connection id " + connectionId + " is previously connected. Disconnecting previous connection.");
+            prevConnection.disconnectListener = null;
+            prevConnection.closeOnFinishData();
         }
         try {
             SocketChannel channel = SocketChannel.open();
             channel.configureBlocking(false);
             channel.connect(addr);
-            tcpConnections[connectionId] = client.server.processor.registerSocketChannel(channel, new ConnectListener(this, connectionId));
+            if (tcpConnections.size() >= Constants.MAX_CONNECTIONS) {
+                sendConnect(connectionId, Constants.TCP_CONNECTION_LIMIT_EXCEED, 65535);
+                return;
+            }
+            tcpConnections.put(connectionId, client.server.processor.registerSocketChannel(channel, new ConnectListener(this, connectionId)));
         } catch (IOException e) {
             sendConnect(connectionId, Constants.TCP_CONNECTION_GENERAL_FAIL, 65535);
         }
     }
 
     public void packet(int connectionId, byte[] packet) throws IOException {
-        if (tcpConnections[connectionId] != null) {
-                ByteBuffer b = ByteBuffer.allocate(packet.length);
-                b.put(packet);
-                b.flip();
-                tcpConnections[connectionId].pushWriteBuffer(b);
+        ChannelWrapper channel = tcpConnections.get(connectionId);
+        if (channel == null) {
+            Logger.error("Connection id " + connectionId + " is null on packet");
+            return;
         }
+        ByteBuffer b = ByteBuffer.allocate(packet.length);
+        b.put(packet);
+        b.flip();
+        channel.pushWriteBuffer(b);
     }
 
     public void disconnect(int connectionId, byte reason) throws IOException {
-        closeConnection(connectionId, true);
-        sendDisconnect(connectionId, reason);
+        if (tcpConnections.get(connectionId) == null) {
+            Logger.error("Connection id " + connectionId + " is null on disconnect");
+            return;
+        }
+        closeWithoutListener(connectionId);
     }
 
-    public void closeConnection(int connectionId, boolean event) throws IOException {
-        if (tcpConnections[connectionId] != null) {
-            if(!event){
-                tcpConnections[connectionId].disconnectListener = null;
-            }
-            tcpConnections[connectionId].closeOnFinishData();
+    public void closeWithoutListener(int connectionId) {
+        ChannelWrapper wrapper = tcpConnections.remove(connectionId);
+        if (wrapper != null) {
+            wrapper.disconnectListener = null;
+            wrapper.closeOnFinishData();
         }
-        tcpConnections[connectionId] = null;
+    }
+
+    public void closeConnection(int connectionId) throws IOException {
+        ChannelWrapper wrapper = tcpConnections.remove(connectionId);
+        if (wrapper != null) {
+            wrapper.closeOnFinishData();
+        }
     }
 }

@@ -1,3 +1,0 @@
-Manifest-Version: 1.0
-Main-Class: tk.jackyliao123.proxy.server.Server
-

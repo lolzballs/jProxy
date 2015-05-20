@@ -36,6 +36,7 @@ public class Constants {
     public static final byte TCP_CONNECTION_TIMEOUT = 3;
     public static final byte TCP_CONNECTION_UNREACHABLE = 4;
     public static final byte TCP_CONNECTION_UNKNOWN_HOST = 5;
+    public static final byte TCP_CONNECTION_LIMIT_EXCEED = 6;
 
     public static final byte TCP_DISCONNECT_GENERAL = 1;
     public static final byte TCP_DISCONNECT_CLIENT = 2;
@@ -44,7 +45,7 @@ public class Constants {
 
     public static final int BUFFER_SIZE = 2048;
     public static final int MAX_CONNECTIONS = 1024;
-    public static final int MAX_QUEUE = 256;
+    public static final int MAX_QUEUE = 16;
 
     // Crypto
     public static final String RSA_ALGORITHM = "RSA";
