@@ -3,7 +3,6 @@ package tk.jackyliao123.proxy.server;
 import tk.jackyliao123.proxy.ChannelWrapper;
 import tk.jackyliao123.proxy.Constants;
 import tk.jackyliao123.proxy.Logger;
-import tk.jackyliao123.proxy.TunnelChannelWrapper;
 import tk.jackyliao123.proxy.event.AcceptEventListener;
 import tk.jackyliao123.proxy.event.EventProcessor;
 import tk.jackyliao123.proxy.server.event.AuthenticateListener;
@@ -13,7 +12,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
 import java.util.HashMap;
 
 public class Server implements AcceptEventListener {
