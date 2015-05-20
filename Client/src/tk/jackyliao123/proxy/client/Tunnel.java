@@ -17,10 +17,12 @@ import java.nio.ByteBuffer;
 import java.nio.channels.CancelledKeyException;
 import java.nio.channels.SocketChannel;
 import java.security.GeneralSecurityException;
+import java.util.ArrayDeque;
 
 public class Tunnel {
     public final TunnelChannelWrapper serverConnection;
     public final EventProcessor processor;
+    private final ArrayDeque<Integer> freeIds;
     public ClientEncryptedPacketLengthListener packetLengthListener;
     public ClientEncryptedPacketListener packetListener;
     public TCPTunnel tcp;
@@ -39,8 +41,13 @@ public class Tunnel {
 
         this.tcp = new TCPTunnel(this, tcpListener);
 
+        this.freeIds = new ArrayDeque<Integer>();
+
         Logger.info("Connecting to server...");
 
+        for (int i = Constants.MAX_CONNECTIONS - 1; i >= 0; --i) {
+            freeIds.push(i);
+        }
     }
 
     public void init(byte[] aesBytes) throws IOException {
@@ -51,6 +58,18 @@ public class Tunnel {
         } catch (GeneralSecurityException e) {
             throw new IOException(e);
         }
+    }
+
+    public int getFreeId() {
+        if (!freeIds.isEmpty()) {
+            return freeIds.pop();
+        }
+        Logger.error("Out of ids. This can cause severe errors");
+        return -1;
+    }
+
+    public void freeId(int id) {
+        freeIds.push(id);
     }
 
     public void onRawData(byte[] data) throws IOException {
@@ -88,7 +107,7 @@ public class Tunnel {
         }
     }
 
-    public void sendEncryptedPacket(byte[] packet) throws IOException {
+    public void sendEncryptedPacket(int id, byte[] packet) throws IOException {
         byte[] encrypted = cipher.encrypt(packet);
         if (encrypted.length % 16 != 0) {
             throw new IOException("Encrypted packet size is not multiple of 16: " + encrypted.length);
@@ -101,7 +120,7 @@ public class Tunnel {
         buffer.put((byte) length);
         buffer.put(encrypted);
         buffer.flip();
-        serverConnection.pushWriteBuffer(buffer);
+        serverConnection.pushWriteBuffer(id, buffer);
 
         Logger.debug("Sending: " + Util.bs2str(buffer.array()));
     }

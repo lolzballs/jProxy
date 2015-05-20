@@ -30,7 +30,7 @@ public class TCPTunnel {
         buffer.put((byte) remote.length);
         buffer.put(remote);
         buffer.flip();
-        tunnel.sendEncryptedPacket(buffer.array());
+        tunnel.sendEncryptedPacket(connectionId, buffer.array());
     }
 
     public void send(int connectionId, byte[] packet) throws IOException {
@@ -40,7 +40,7 @@ public class TCPTunnel {
         buffer.put(Util.us2bs(packet.length));
         buffer.put(packet);
         buffer.flip();
-        tunnel.sendEncryptedPacket(buffer.array());
+        tunnel.sendEncryptedPacket(connectionId, buffer.array());
     }
 
     public void disconnect(int connectionId, byte reason) throws IOException {
@@ -49,7 +49,7 @@ public class TCPTunnel {
         buffer.put(Util.us2bs(connectionId));
         buffer.put(reason);
         buffer.flip();
-        tunnel.sendEncryptedPacket(buffer.array());
+        tunnel.sendEncryptedPacket(connectionId, buffer.array());
     }
 
     public void onConnect(int connectionID, byte status, int ping) throws IOException {

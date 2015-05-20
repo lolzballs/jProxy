@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ServerSocketChannel;
-import java.util.ArrayDeque;
 import java.util.HashMap;
 
 public class SocksClient implements AcceptEventListener {
@@ -27,7 +26,6 @@ public class SocksClient implements AcceptEventListener {
     public final HashMap<Integer, Socks5ConnectionData> connections;
     private final ServerSocketChannel serverChannel;
     private final Tunnel tunnel;
-    private final ArrayDeque<Integer> freeIds;
     private boolean connected = false;
     private boolean running = false;
 
@@ -37,7 +35,6 @@ public class SocksClient implements AcceptEventListener {
         this.tunnel = new Tunnel(processor, key, new Socks5TCPListener(this));
 
         this.connections = new HashMap<Integer, Socks5ConnectionData>();
-        this.freeIds = new ArrayDeque<Integer>();
 
         tunnel.serverConnection.disconnectListener = new TunnelDisconnectListener(this);
 
@@ -45,9 +42,6 @@ public class SocksClient implements AcceptEventListener {
         serverChannel.socket().bind(new InetSocketAddress(port));
 
         processor.registerServerChannel(serverChannel, this);
-        for (int i = Constants.MAX_CONNECTIONS - 1; i >= 0; --i) {
-            freeIds.push(i);
-        }
     }
 
     public static void main(String[] args) {
@@ -68,18 +62,6 @@ public class SocksClient implements AcceptEventListener {
             Logger.error("SocksClient has experienced a critical error!");
             Logger.error(e);
         }
-    }
-
-    public int getFreeId() {
-        if (!freeIds.isEmpty()) {
-            return freeIds.pop();
-        }
-        Logger.error("Out of ids. This can cause severe errors");
-        return -1;
-    }
-
-    public void freeId(int id) {
-        freeIds.push(id);
     }
 
     public void start() {
@@ -105,6 +87,14 @@ public class SocksClient implements AcceptEventListener {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void freeId(int id) {
+        tunnel.freeId(id);
+    }
+
+    public int getFreeId() {
+        return tunnel.getFreeId();
     }
 
     public void disconnect(ChannelWrapper c) {

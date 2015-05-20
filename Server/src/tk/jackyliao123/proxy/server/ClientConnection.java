@@ -35,7 +35,7 @@ public class ClientConnection {
         this.packetListener = new ServerEncryptedPacketListener(this);
     }
 
-    public void sendPacket(byte[] data) throws IOException {
+    public void sendPacket(int id, byte[] data) throws IOException {
         byte[] enc = cipher.encrypt(data);
         int length = enc.length;
         if (length % 16 != 0) {
@@ -51,7 +51,7 @@ public class ClientConnection {
         b.put((byte) (length / 16));
         b.put(enc);
         b.flip();
-        channel.pushWriteBuffer(b);
+        channel.pushWriteBuffer(id, b);
     }
 
     public SocketAddress getSocketAddress(byte[] b, int offset, int port) throws IOException {

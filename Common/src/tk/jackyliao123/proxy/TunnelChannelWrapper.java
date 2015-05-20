@@ -6,6 +6,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayDeque;
 import java.util.HashMap;
+import java.util.NoSuchElementException;
 
 public class TunnelChannelWrapper extends ChannelWrapper {
     private final HashMap<Integer, ArrayDeque<ByteBuffer>> dataBuffers;
@@ -19,7 +20,15 @@ public class TunnelChannelWrapper extends ChannelWrapper {
         this.idsWaiting = new ArrayDeque<Integer>();
     }
 
-    public void pushWriteBuffer(int connectionId, ByteBuffer data) {
+    @Override
+    public void pushWriteBuffer(ByteBuffer data) {
+        Logger.error("ERROR PLEASE DO NOT DO THIS!!!");
+        Logger.error(new Exception("Stack trace"));
+
+        pushWriteBuffer(Constants.MAX_CONNECTIONS, data);
+    }
+
+    public void pushWriteBuffer(int connectionId, ByteBuffer data ) {
         ArrayDeque<ByteBuffer> buffers = dataBuffers.get(connectionId);
         if (buffers == null) {
             buffers = new ArrayDeque<ByteBuffer>();
@@ -32,11 +41,18 @@ public class TunnelChannelWrapper extends ChannelWrapper {
             return;
         }
         ids.push(connectionId);
+
+        addInterest(SelectionKey.OP_WRITE);
     }
 
     @Override
     public ByteBuffer getWriteBuffer() {
-        int client = ids.pop();
+        int client;
+        try {
+            client =  ids.pop();
+        } catch (NoSuchElementException e) {
+            return null;
+        }
         ids.push(client);
         idsWaiting.push(client);
 

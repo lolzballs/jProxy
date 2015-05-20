@@ -29,7 +29,7 @@ public class TCPHandler {
         buffer.put(responseCode);
         buffer.put(Util.us2bs(ping));
         buffer.flip();
-        client.sendPacket(buffer.array());
+        client.sendPacket(connectionId, buffer.array());
     }
 
     public void sendDisconnect(int connectionId, byte reasonCode) throws IOException {
@@ -38,7 +38,7 @@ public class TCPHandler {
         buffer.put(Util.us2bs(connectionId));
         buffer.put(reasonCode);
         buffer.flip();
-        client.sendPacket(buffer.array());
+        client.sendPacket(connectionId, buffer.array());
     }
 
     public void sendPacket(int connectionId, byte[] data) throws IOException {
@@ -48,7 +48,7 @@ public class TCPHandler {
         buffer.put(Util.us2bs(data.length));
         buffer.put(data);
         buffer.flip();
-        client.sendPacket(buffer.array());
+        client.sendPacket(connectionId, buffer.array());
     }
 
     public void connect(int connectionId, SocketAddress addr) throws IOException {

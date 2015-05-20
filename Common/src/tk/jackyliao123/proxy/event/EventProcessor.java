@@ -134,8 +134,8 @@ public class EventProcessor {
                 kill((ChannelWrapper) key.attachment());
             } catch (Exception e) {
                 Logger.error("Event processing has experienced an error on " + key.channel());
-                kill((ChannelWrapper) key.attachment());
                 Logger.error(e);
+                kill((ChannelWrapper) key.attachment());
             }
 
             keys.remove();
