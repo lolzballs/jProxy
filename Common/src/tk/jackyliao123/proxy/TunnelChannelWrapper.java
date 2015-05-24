@@ -10,13 +10,11 @@ import java.util.HashMap;
 public class TunnelChannelWrapper extends ChannelWrapper {
     private final HashMap<Integer, ArrayDeque<ByteBuffer>> dataBuffers;
     private final ArrayDeque<Integer> ids;
-    private final ArrayDeque<Integer> idsWaiting;
 
     public TunnelChannelWrapper(SocketChannel channel, SelectionKey key) {
         super(channel, key);
         this.dataBuffers = new HashMap<Integer, ArrayDeque<ByteBuffer>>();
         this.ids = new ArrayDeque<Integer>();
-        this.idsWaiting = new ArrayDeque<Integer>();
     }
 
     @Override
@@ -46,6 +44,7 @@ public class TunnelChannelWrapper extends ChannelWrapper {
 
     @Override
     public ByteBuffer getWriteBuffer() {
+        System.out.println(ids);
         if (ids.isEmpty()) {
             removeInterest(SelectionKey.OP_WRITE);
             System.out.println("get buffer null");
@@ -54,36 +53,26 @@ public class TunnelChannelWrapper extends ChannelWrapper {
 
         int client = ids.pop();
 
-        ids.push(client);
-        idsWaiting.push(client);
-
         ArrayDeque<ByteBuffer> clientBuffers = dataBuffers.get(client);
         if (clientBuffers.isEmpty()) {
-            removeInterest(SelectionKey.OP_WRITE);
-            System.out.println("get buffer null");
+            System.out.println("Empty");
+            dataBuffers.remove(client);
             return null;
         }
+
+        System.out.println("Push onto stack");
+        ids.push(client);
+
         super.pushWriteBuffer(clientBuffers.pop());
 
-        System.out.println(ids + ", " + idsWaiting);
         return super.getWriteBuffer();
     }
 
     @Override
     public ByteBuffer popWriteBuffer() throws IOException {
-        System.out.println(idsWaiting);
-
-        int client = idsWaiting.pop();
-        System.out.println("Pop " + client);
-        ArrayDeque<ByteBuffer> buffers = dataBuffers.get(client);
-
-        if (buffers.isEmpty()) {
-            ids.remove(client);
-            dataBuffers.remove(client);
-        }
-
         ByteBuffer b = writeBuffers.removeFirst();
         if (dataBuffers.isEmpty()) {
+            System.out.println("Nothing left, removing opwrite");
             removeInterest(SelectionKey.OP_WRITE);
         }
         return b;
