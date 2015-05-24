@@ -6,7 +6,6 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayDeque;
 import java.util.HashMap;
-import java.util.NoSuchElementException;
 
 public class TunnelChannelWrapper extends ChannelWrapper {
     private final HashMap<Integer, ArrayDeque<ByteBuffer>> dataBuffers;
@@ -22,13 +21,10 @@ public class TunnelChannelWrapper extends ChannelWrapper {
 
     @Override
     public void pushWriteBuffer(ByteBuffer data) {
-        Logger.error("ERROR PLEASE DO NOT DO THIS!!!");
-        Logger.error(new Exception("Stack trace"));
-
         pushWriteBuffer(Constants.MAX_CONNECTIONS, data);
     }
 
-    public void pushWriteBuffer(int connectionId, ByteBuffer data ) {
+    public void pushWriteBuffer(int connectionId, ByteBuffer data) {
         ArrayDeque<ByteBuffer> buffers = dataBuffers.get(connectionId);
         if (buffers == null) {
             buffers = new ArrayDeque<ByteBuffer>();
@@ -42,28 +38,43 @@ public class TunnelChannelWrapper extends ChannelWrapper {
         }
         ids.push(connectionId);
 
+        System.out.println(ids + "!");
+
         addInterest(SelectionKey.OP_WRITE);
+        System.out.println("Interest added");
     }
 
     @Override
     public ByteBuffer getWriteBuffer() {
-        int client;
-        try {
-            client =  ids.pop();
-        } catch (NoSuchElementException e) {
+        if (ids.isEmpty()) {
+            removeInterest(SelectionKey.OP_WRITE);
+            System.out.println("get buffer null");
             return null;
         }
+
+        int client = ids.pop();
+
         ids.push(client);
         idsWaiting.push(client);
 
-        super.pushWriteBuffer(dataBuffers.get(client).pop());
+        ArrayDeque<ByteBuffer> clientBuffers = dataBuffers.get(client);
+        if (clientBuffers.isEmpty()) {
+            removeInterest(SelectionKey.OP_WRITE);
+            System.out.println("get buffer null");
+            return null;
+        }
+        super.pushWriteBuffer(clientBuffers.pop());
 
+        System.out.println(ids + ", " + idsWaiting);
         return super.getWriteBuffer();
     }
 
     @Override
     public ByteBuffer popWriteBuffer() throws IOException {
+        System.out.println(idsWaiting);
+
         int client = idsWaiting.pop();
+        System.out.println("Pop " + client);
         ArrayDeque<ByteBuffer> buffers = dataBuffers.get(client);
 
         if (buffers.isEmpty()) {
@@ -71,6 +82,10 @@ public class TunnelChannelWrapper extends ChannelWrapper {
             dataBuffers.remove(client);
         }
 
-        return super.popWriteBuffer();
+        ByteBuffer b = writeBuffers.removeFirst();
+        if (dataBuffers.isEmpty()) {
+            removeInterest(SelectionKey.OP_WRITE);
+        }
+        return b;
     }
 }

@@ -71,12 +71,12 @@ public class AuthenticateListener implements ReadEventListener {
             generator.init(Constants.AES_KEYSIZE);
             SecretKey key = generator.generateKey();
             byte[] aesKey = key.getEncoded();
-            sendAccepted(channel, clientKey, aesKey);
 
-            TunnelChannelWrapper tunnelWrapper = new TunnelChannelWrapper((SocketChannel) channel.channel, channel.selectionKey);
+            TunnelChannelWrapper tunnelWrapper = server.processor.channelToTunnel(channel);
             ClientConnection connection = new ClientConnection(server, tunnelWrapper, new AESCipher(key));
             server.connections.put(user, connection);
-            channel.pushFillReadBuffer(ByteBuffer.allocate(1), connection.packetLengthListener);
+            sendAccepted(tunnelWrapper, clientKey, aesKey);
+            tunnelWrapper.pushFillReadBuffer(ByteBuffer.allocate(1), connection.packetLengthListener);
 
             Logger.info("User " + user + " connected from " + channel.channel);
         } catch (GeneralSecurityException e) {

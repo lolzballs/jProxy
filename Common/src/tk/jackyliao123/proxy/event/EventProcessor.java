@@ -162,8 +162,14 @@ public class EventProcessor {
         return wrapper;
     }
 
+    public TunnelChannelWrapper channelToTunnel(ChannelWrapper wrapper) {
+        TunnelChannelWrapper tunnelChannel = new TunnelChannelWrapper((SocketChannel) wrapper.channel, wrapper.selectionKey);
+        wrapper.selectionKey.attach(tunnelChannel);
+        return tunnelChannel;
+    }
+
     public void kill(ChannelWrapper channel) {
-        channel.close();
         Logger.info("Connection killed: " + channel.channel);
+        channel.close();
     }
 }
