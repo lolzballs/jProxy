@@ -6,15 +6,15 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayDeque;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 public class TunnelChannelWrapper extends ChannelWrapper {
     private final HashMap<Integer, ArrayDeque<ByteBuffer>> dataBuffers;
-    private final ArrayDeque<Integer> ids;
 
     public TunnelChannelWrapper(SocketChannel channel, SelectionKey key) {
         super(channel, key);
         this.dataBuffers = new HashMap<Integer, ArrayDeque<ByteBuffer>>();
-        this.ids = new ArrayDeque<Integer>();
     }
 
     @Override
@@ -29,41 +29,25 @@ public class TunnelChannelWrapper extends ChannelWrapper {
             dataBuffers.put(connectionId, buffers);
         }
 
-        buffers.push(data);
-
-        if (ids.contains(connectionId)) {
-            return;
-        }
-        ids.push(connectionId);
-
-        System.out.println(ids + "!");
+        buffers.addLast(data);
 
         addInterest(SelectionKey.OP_WRITE);
-        System.out.println("Interest added");
     }
 
     @Override
     public ByteBuffer getWriteBuffer() {
-        System.out.println(ids);
-        if (ids.isEmpty()) {
-            removeInterest(SelectionKey.OP_WRITE);
-            System.out.println("get buffer null");
-            return null;
+        if(writeBuffers.isEmpty()) {
+            Iterator<Map.Entry<Integer, ArrayDeque<ByteBuffer>>> iterator = dataBuffers.entrySet().iterator();
+            while(iterator.hasNext()) {
+                Map.Entry<Integer, ArrayDeque<ByteBuffer>> entry = iterator.next();
+                ArrayDeque<ByteBuffer> clientBuffers = entry.getValue();
+                ByteBuffer buffer = clientBuffers.removeFirst();
+                if(clientBuffers.isEmpty()){
+                    iterator.remove();
+                }
+                super.pushWriteBuffer(buffer);
+            }
         }
-
-        int client = ids.pop();
-
-        ArrayDeque<ByteBuffer> clientBuffers = dataBuffers.get(client);
-        if (clientBuffers.isEmpty()) {
-            System.out.println("Empty");
-            dataBuffers.remove(client);
-            return null;
-        }
-
-        System.out.println("Push onto stack");
-        ids.push(client);
-
-        super.pushWriteBuffer(clientBuffers.pop());
 
         return super.getWriteBuffer();
     }
@@ -71,8 +55,7 @@ public class TunnelChannelWrapper extends ChannelWrapper {
     @Override
     public ByteBuffer popWriteBuffer() throws IOException {
         ByteBuffer b = writeBuffers.removeFirst();
-        if (dataBuffers.isEmpty()) {
-            System.out.println("Nothing left, removing opwrite");
+        if (writeBuffers.isEmpty() && dataBuffers.isEmpty()) {
             removeInterest(SelectionKey.OP_WRITE);
         }
         return b;

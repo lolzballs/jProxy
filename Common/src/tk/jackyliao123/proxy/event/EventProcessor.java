@@ -27,6 +27,7 @@ public class EventProcessor {
     public void process(long timeout) throws IOException {
         selector.select(timeout);
 
+
         Iterator<SelectionKey> keys = selector.selectedKeys().iterator();
         while (keys.hasNext()) {
             SelectionKey key = keys.next();
@@ -85,7 +86,6 @@ public class EventProcessor {
                             }
                         }
                     }
-
                 }
 
                 if (!key.isValid()) {
