@@ -36,13 +36,13 @@ public class TunnelChannelWrapper extends ChannelWrapper {
 
     @Override
     public ByteBuffer getWriteBuffer() {
-        if(writeBuffers.isEmpty()) {
+        if (writeBuffers.isEmpty()) {
             Iterator<Map.Entry<Integer, ArrayDeque<ByteBuffer>>> iterator = dataBuffers.entrySet().iterator();
-            while(iterator.hasNext()) {
+            while (iterator.hasNext()) {
                 Map.Entry<Integer, ArrayDeque<ByteBuffer>> entry = iterator.next();
                 ArrayDeque<ByteBuffer> clientBuffers = entry.getValue();
                 ByteBuffer buffer = clientBuffers.removeFirst();
-                if(clientBuffers.isEmpty()){
+                if (clientBuffers.isEmpty()) {
                     iterator.remove();
                 }
                 super.pushWriteBuffer(buffer);
