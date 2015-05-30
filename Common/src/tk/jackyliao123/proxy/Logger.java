@@ -89,6 +89,7 @@ public class Logger {
             setDaemon(true);
         }
 
+        @Override
         public void run() {
             while (true) {
                 try {

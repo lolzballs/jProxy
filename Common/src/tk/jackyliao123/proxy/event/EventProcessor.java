@@ -27,7 +27,6 @@ public class EventProcessor {
     public void process(long timeout) throws IOException {
         selector.select(timeout);
 
-
         Iterator<SelectionKey> keys = selector.selectedKeys().iterator();
         while (keys.hasNext()) {
             SelectionKey key = keys.next();
@@ -135,6 +134,10 @@ public class EventProcessor {
             } catch (Exception e) {
                 Logger.error("Event processing has experienced an error on " + key.channel());
                 Logger.error(e);
+                kill((ChannelWrapper) key.attachment());
+            } catch (Throwable t) {
+                Logger.error("Critical Error, Throwable caught");
+                Logger.error(t);
                 kill((ChannelWrapper) key.attachment());
             }
 

@@ -15,6 +15,7 @@ public class ClientEncryptedPacketLengthListener implements ReadEventListener {
         this.tunnel = tunnel;
     }
 
+    @Override
     public void onRead(ChannelWrapper channel, byte[] array) throws IOException {
         int length = Util.b2ub(array[0]) * 16;
         channel.pushFillReadBuffer(ByteBuffer.allocate(length), tunnel.packetListener);

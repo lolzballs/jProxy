@@ -16,6 +16,7 @@ public class RedirectDisconnectListener implements DisconnectEventListener {
         this.connectionId = connectionId;
     }
 
+    @Override
     public void onDisconnect(ChannelWrapper c) throws IOException {
         handler.closeConnection(connectionId);
         handler.sendDisconnect(connectionId, Constants.TCP_DISCONNECT_CONNECTION_RESET);

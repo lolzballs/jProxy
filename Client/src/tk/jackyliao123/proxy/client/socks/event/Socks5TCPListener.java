@@ -18,6 +18,7 @@ public class Socks5TCPListener implements TCPListener {
         this.client = client;
     }
 
+    @Override
     public void onTcpConnect(int connectionId, byte statusCode, int ping) throws IOException {
         Socks5ConnectionData c = client.connections.get(connectionId);
         if (c == null) {
@@ -80,6 +81,7 @@ public class Socks5TCPListener implements TCPListener {
         c.client.pushDumpReadBuffer(new Socks5DataListener(client, connectionId));
     }
 
+    @Override
     public void onTcpPacket(int connectionId, byte[] packet) throws IOException {
         Socks5ConnectionData c = client.connections.get(connectionId);
         if (c == null) {
@@ -89,6 +91,7 @@ public class Socks5TCPListener implements TCPListener {
         c.client.pushWriteBuffer(ByteBuffer.wrap(packet));
     }
 
+    @Override
     public void onTcpDisconnect(int connectionId, byte reason) throws IOException {
         Socks5ConnectionData c = client.connections.remove(connectionId);
         if (c == null) {

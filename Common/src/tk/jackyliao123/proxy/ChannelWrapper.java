@@ -92,6 +92,7 @@ public class ChannelWrapper {
         try {
             selectionKey.interestOps(selectionKey.interestOps() | op);
         } catch (CancelledKeyException e) {
+            Logger.warning("Cancelled key exception");
             close();
         }
     }
@@ -100,21 +101,26 @@ public class ChannelWrapper {
         try {
             selectionKey.interestOps(selectionKey.interestOps() & (~op));
         } catch (CancelledKeyException e) {
+            Logger.warning("Cancelled key exception");
             close();
         }
     }
 
     public void pushDumpReadBuffer(ReadEventListener listener) {
-        if (!shouldClose && !stopReading) {
+        if (!shouldClose) {
             readBuffers.addLast(new BufferFiller(ByteBuffer.allocate(Constants.BUFFER_SIZE), listener, false));
-            addInterest(SelectionKey.OP_READ);
+            if (!stopReading) {
+                addInterest(SelectionKey.OP_READ);
+            }
         }
     }
 
     public void pushFillReadBuffer(ByteBuffer bytes, ReadEventListener listener) {
-        if (!shouldClose && !stopReading) {
+        if (!shouldClose) {
             readBuffers.addLast(new BufferFiller(bytes, listener, true));
-            addInterest(SelectionKey.OP_READ);
+            if (!stopReading) {
+                addInterest(SelectionKey.OP_READ);
+            }
         }
     }
 
@@ -130,6 +136,7 @@ public class ChannelWrapper {
         if (!readBuffers.isEmpty()) {
             return readBuffers.getFirst();
         }
+        removeInterest(SelectionKey.OP_READ);
         return null;
     }
 
@@ -139,9 +146,11 @@ public class ChannelWrapper {
     }
 
     public void pushWriteBuffer(ByteBuffer bytes) {
-        if (!shouldClose && !stopWriting) {
+        if (!shouldClose) {
             writeBuffers.addLast(bytes);
-            addInterest(SelectionKey.OP_WRITE);
+            if (!stopWriting) {
+                addInterest(SelectionKey.OP_WRITE);
+            }
         }
     }
 

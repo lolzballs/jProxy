@@ -43,6 +43,11 @@ public abstract class TunnelChannelWrapper extends ChannelWrapper {
 
         buffers.addLast(data);
 
+        if (buffers.size() >= Constants.MAX_QUEUE) {
+            stopReading(connectionId);
+            Logger.info("Buffer filled");
+        }
+
         addInterest(SelectionKey.OP_WRITE);
     }
 
@@ -56,6 +61,9 @@ public abstract class TunnelChannelWrapper extends ChannelWrapper {
                 ByteBuffer buffer = clientBuffers.removeFirst();
                 if (clientBuffers.isEmpty()) {
                     iterator.remove();
+                }
+                if (clientBuffers.size() < Constants.MAX_QUEUE) {
+                    startReading(entry.getKey());
                 }
                 super.pushWriteBuffer(buffer);
             }

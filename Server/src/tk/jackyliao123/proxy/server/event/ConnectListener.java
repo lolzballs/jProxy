@@ -19,6 +19,7 @@ public class ConnectListener implements ConnectEventListener {
         this.handler = handler;
     }
 
+    @Override
     public boolean onConnect(ChannelWrapper channel) throws IOException {
         if (channel.channel instanceof SocketChannel) {
             int timeTaken = (int) (System.currentTimeMillis() - channel.currentTimestamp);

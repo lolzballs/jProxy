@@ -22,6 +22,7 @@ public class Socks5AddressListener implements ReadEventListener {
         this.cmd = cmd;
     }
 
+    @Override
     public void onRead(ChannelWrapper channel, byte[] array) throws IOException {
         byte type;
         byte[] addr;

@@ -18,6 +18,7 @@ public class Socks5DomainLengthListener implements ReadEventListener {
         this.cmd = cmd;
     }
 
+    @Override
     public void onRead(ChannelWrapper channel, byte[] array) throws IOException {
         channel.pushFillReadBuffer(ByteBuffer.allocate(Util.b2ub(array[0]) + 2), new Socks5AddressListener(client, Socks5Constants.ATYP_DOMAIN, cmd));
     }

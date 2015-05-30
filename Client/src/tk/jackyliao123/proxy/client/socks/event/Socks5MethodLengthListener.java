@@ -17,6 +17,7 @@ public class Socks5MethodLengthListener implements ReadEventListener {
         this.client = client;
     }
 
+    @Override
     public void onRead(ChannelWrapper channel, byte[] array) throws IOException {
         byte version = array[0];
         if (version != Socks5Constants.VERSION) {

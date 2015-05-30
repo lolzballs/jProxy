@@ -15,6 +15,7 @@ public class Socks5DataListener implements ReadEventListener {
         this.id = id;
     }
 
+    @Override
     public void onRead(ChannelWrapper channel, byte[] array) throws IOException {
         client.getTCPTunnel().send(id, array);
         channel.pushDumpReadBuffer(this);

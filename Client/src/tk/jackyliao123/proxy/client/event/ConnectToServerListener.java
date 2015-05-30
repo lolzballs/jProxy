@@ -18,6 +18,7 @@ public class ConnectToServerListener implements ConnectEventListener {
         this.secretKey = secretKey;
     }
 
+    @Override
     public boolean onConnect(ChannelWrapper c) throws IOException {
         SocketChannel channel = (SocketChannel) c.channel;
         boolean connected = channel.finishConnect();

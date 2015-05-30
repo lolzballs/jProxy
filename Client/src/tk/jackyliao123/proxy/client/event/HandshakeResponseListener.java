@@ -23,6 +23,7 @@ public class HandshakeResponseListener implements ReadEventListener {
         this.secretKey = secretKey;
     }
 
+    @Override
     public void onRead(ChannelWrapper channel, byte[] array) throws IOException {
         boolean eq = Util.bseq(array, 0, Constants.MAGIC_LENGTH, Constants.MAGIC, 0, Constants.MAGIC_LENGTH);
         if (!eq) {

@@ -13,6 +13,7 @@ public class TunnelDisconnectListener implements DisconnectEventListener {
         this.client = client;
     }
 
+    @Override
     public void onDisconnect(ChannelWrapper c) throws IOException {
         client.disconnect(c);
         System.err.println("Disconnected");

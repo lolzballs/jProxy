@@ -33,7 +33,7 @@ public class Tunnel {
         serverSocketChannel.configureBlocking(false);
         serverSocketChannel.connect(Variables.serverAddress);
 
-        rawServerConnection = processor.registerSocketChannel(serverSocketChannel, new ConnectToServerListener(this, secretKey));
+        this.rawServerConnection = processor.registerSocketChannel(serverSocketChannel, new ConnectToServerListener(this, secretKey));
 
         this.packetLengthListener = new ClientEncryptedPacketLengthListener(this);
         this.packetListener = new ClientEncryptedPacketListener(this);
