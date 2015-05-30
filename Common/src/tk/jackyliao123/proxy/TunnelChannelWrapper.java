@@ -9,11 +9,23 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class TunnelChannelWrapper extends ChannelWrapper {
+public abstract class TunnelChannelWrapper extends ChannelWrapper {
     private final HashMap<Integer, ArrayDeque<ByteBuffer>> dataBuffers;
 
-    public TunnelChannelWrapper(SocketChannel channel, SelectionKey key) {
-        super(channel, key);
+    public TunnelChannelWrapper(ChannelWrapper wrapper) {
+        super(wrapper.channel, wrapper.selectionKey, wrapper.readBuffers, wrapper.writeBuffers);
+        currentTimestamp = wrapper.currentTimestamp;
+        connectListener = wrapper.connectListener;
+        disconnectListener = wrapper.disconnectListener;
+        isConnected = wrapper.isConnected;
+        shouldClose = wrapper.shouldClose;
+        isClosed = wrapper.isClosed;
+
+        stopWriting = wrapper.stopWriting;
+        stopReading = wrapper.stopReading;
+
+        selectionKey.attach(this);
+
         this.dataBuffers = new HashMap<Integer, ArrayDeque<ByteBuffer>>();
     }
 
@@ -60,4 +72,8 @@ public class TunnelChannelWrapper extends ChannelWrapper {
         }
         return b;
     }
+
+    public abstract void stopReading(int connectionId);
+
+    public abstract void startReading(int connectionId);
 }

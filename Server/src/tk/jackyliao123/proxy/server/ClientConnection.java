@@ -22,7 +22,7 @@ public class ClientConnection {
     public ServerEncryptedPacketLengthListener packetLengthListener;
     public ServerEncryptedPacketListener packetListener;
     private TunnelChannelWrapper channel;
-    private TCPHandler tcp;
+    public TCPHandler tcp;
 
     public ClientConnection(Server server, TunnelChannelWrapper channel, AESCipher cipher) {
         this.server = server;

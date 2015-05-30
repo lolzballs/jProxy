@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
 import java.util.HashMap;
 
 public class SocksClient implements AcceptEventListener {
@@ -32,9 +33,12 @@ public class SocksClient implements AcceptEventListener {
     public SocksClient(int port, byte[] key) throws IOException {
         this.processor = new EventProcessor();
         this.serverChannel = ServerSocketChannel.open();
-        this.tunnel = new Tunnel(processor, key, new Socks5TCPListener(this));
 
         this.connections = new HashMap<Integer, Socks5ConnectionData>();
+
+        this.tunnel = new Tunnel(processor, key, new Socks5TCPListener(this));
+        this.tunnel.serverConnection = new Socks5ClientTunnelChannelWrapper(connections, tunnel.rawServerConnection);
+
 
         tunnel.serverConnection.disconnectListener = new TunnelDisconnectListener(this);
 
@@ -104,6 +108,7 @@ public class SocksClient implements AcceptEventListener {
 
     @Override
     public void onAccept(ChannelWrapper channel) throws IOException {
+        Logger.info("Connected");
         channel.pushFillReadBuffer(ByteBuffer.allocate(2), new Socks5MethodLengthListener(this));
     }
 

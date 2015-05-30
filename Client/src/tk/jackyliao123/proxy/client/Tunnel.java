@@ -1,9 +1,6 @@
 package tk.jackyliao123.proxy.client;
 
-import tk.jackyliao123.proxy.Constants;
-import tk.jackyliao123.proxy.Logger;
-import tk.jackyliao123.proxy.TunnelChannelWrapper;
-import tk.jackyliao123.proxy.Util;
+import tk.jackyliao123.proxy.*;
 import tk.jackyliao123.proxy.cipher.AESCipher;
 import tk.jackyliao123.proxy.client.event.ClientEncryptedPacketLengthListener;
 import tk.jackyliao123.proxy.client.event.ClientEncryptedPacketListener;
@@ -20,7 +17,8 @@ import java.security.GeneralSecurityException;
 import java.util.ArrayDeque;
 
 public class Tunnel {
-    public final TunnelChannelWrapper serverConnection;
+    public TunnelChannelWrapper serverConnection;
+    public final ChannelWrapper rawServerConnection;
     public final EventProcessor processor;
     private final ArrayDeque<Integer> freeIds;
     public ClientEncryptedPacketLengthListener packetLengthListener;
@@ -35,7 +33,8 @@ public class Tunnel {
         serverSocketChannel.configureBlocking(false);
         serverSocketChannel.connect(Variables.serverAddress);
 
-        this.serverConnection = processor.registerTunnelChannel(serverSocketChannel, new ConnectToServerListener(this, secretKey));
+        rawServerConnection = processor.registerSocketChannel(serverSocketChannel, new ConnectToServerListener(this, secretKey));
+
         this.packetLengthListener = new ClientEncryptedPacketLengthListener(this);
         this.packetListener = new ClientEncryptedPacketListener(this);
 

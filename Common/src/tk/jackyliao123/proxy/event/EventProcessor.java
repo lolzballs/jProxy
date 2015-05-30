@@ -154,20 +154,6 @@ public class EventProcessor {
         return wrapper;
     }
 
-    public TunnelChannelWrapper registerTunnelChannel(SocketChannel channel, ConnectEventListener listener) throws IOException {
-        SelectionKey key = channel.register(selector, SelectionKey.OP_CONNECT);
-        TunnelChannelWrapper wrapper = new TunnelChannelWrapper(channel, key);
-        wrapper.connectListener = listener;
-        key.attach(wrapper);
-        return wrapper;
-    }
-
-    public TunnelChannelWrapper channelToTunnel(ChannelWrapper wrapper) {
-        TunnelChannelWrapper tunnelChannel = new TunnelChannelWrapper((SocketChannel) wrapper.channel, wrapper.selectionKey);
-        wrapper.selectionKey.attach(tunnelChannel);
-        return tunnelChannel;
-    }
-
     public void kill(ChannelWrapper channel) {
         Logger.info("Connection killed: " + channel.channel);
         channel.close();

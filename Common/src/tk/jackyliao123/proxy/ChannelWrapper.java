@@ -21,8 +21,18 @@ public class ChannelWrapper {
     public boolean isConnected = false;
     public ConnectEventListener connectListener;
     public DisconnectEventListener disconnectListener;
-    private boolean shouldClose = false;
-    private boolean isClosed = false;
+    protected boolean shouldClose = false;
+    protected boolean isClosed = false;
+
+    public boolean stopReading = false;
+    public boolean stopWriting = false;
+
+    protected ChannelWrapper(AbstractSelectableChannel channel, SelectionKey key, ArrayDeque<BufferFiller> readBuffer, ArrayDeque<ByteBuffer> writeBuffer) {
+        this.channel = channel;
+        this.selectionKey = key;
+        this.readBuffers = readBuffer;
+        this.writeBuffers = writeBuffer;
+    }
 
     public ChannelWrapper(SocketChannel channel, SelectionKey key) {
         this.channel = channel;
@@ -68,6 +78,7 @@ public class ChannelWrapper {
 
     public void closeOnFinishData() {
         shouldClose = true;
+        removeInterest(SelectionKey.OP_READ);
         if (writeBuffers.isEmpty()) {
             close();
         }
@@ -94,13 +105,17 @@ public class ChannelWrapper {
     }
 
     public void pushDumpReadBuffer(ReadEventListener listener) {
-        readBuffers.addLast(new BufferFiller(ByteBuffer.allocate(Constants.BUFFER_SIZE), listener, false));
-        addInterest(SelectionKey.OP_READ);
+        if (!shouldClose && !stopReading) {
+            readBuffers.addLast(new BufferFiller(ByteBuffer.allocate(Constants.BUFFER_SIZE), listener, false));
+            addInterest(SelectionKey.OP_READ);
+        }
     }
 
     public void pushFillReadBuffer(ByteBuffer bytes, ReadEventListener listener) {
-        readBuffers.addLast(new BufferFiller(bytes, listener, true));
-        addInterest(SelectionKey.OP_READ);
+        if (!shouldClose && !stopReading) {
+            readBuffers.addLast(new BufferFiller(bytes, listener, true));
+            addInterest(SelectionKey.OP_READ);
+        }
     }
 
     public BufferFiller popReadBuffer() throws IOException {
@@ -124,8 +139,10 @@ public class ChannelWrapper {
     }
 
     public void pushWriteBuffer(ByteBuffer bytes) {
-        writeBuffers.addLast(bytes);
-        addInterest(SelectionKey.OP_WRITE);
+        if (!shouldClose && !stopWriting) {
+            writeBuffers.addLast(bytes);
+            addInterest(SelectionKey.OP_WRITE);
+        }
     }
 
     public ByteBuffer popWriteBuffer() throws IOException {
