@@ -84,4 +84,7 @@ public abstract class TunnelChannelWrapper extends ChannelWrapper {
     public abstract void stopReading(int connectionId);
 
     public abstract void startReading(int connectionId);
+
+    public abstract void cleanup();
+
 }

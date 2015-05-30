@@ -138,7 +138,12 @@ public class EventProcessor {
             } catch (Throwable t) {
                 Logger.error("Critical Error, Throwable caught");
                 Logger.error(t);
-                kill((ChannelWrapper) key.attachment());
+                ChannelWrapper wrapper = (ChannelWrapper) key.attachment();
+                if (wrapper instanceof TunnelChannelWrapper) {
+                    ((TunnelChannelWrapper) wrapper).cleanup();
+                }
+                kill(wrapper);
+                System.gc();
             }
 
             keys.remove();

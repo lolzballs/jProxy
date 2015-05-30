@@ -7,6 +7,7 @@ import tk.jackyliao123.proxy.TunnelChannelWrapper;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.HashMap;
+import java.util.Map;
 
 public class ServerTunnelChannelWrapper extends TunnelChannelWrapper {
     public HashMap<Integer, ChannelWrapper> connections;
@@ -35,5 +36,15 @@ public class ServerTunnelChannelWrapper extends TunnelChannelWrapper {
         }
         connection.addInterest(SelectionKey.OP_READ);
         connection.stopReading = false;
+    }
+
+    @Override
+    public void cleanup() {
+        for (Map.Entry<Integer, ChannelWrapper> entry : connections.entrySet()) {
+            ChannelWrapper wrapper = entry.getValue();
+            wrapper.disconnectListener = null;
+            wrapper.close();
+        }
+        connections.clear();
     }
 }

@@ -9,6 +9,7 @@ import tk.jackyliao123.proxy.client.socks.Socks5ConnectionData;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.HashMap;
+import java.util.Map;
 
 public class Socks5ClientTunnelChannelWrapper extends TunnelChannelWrapper {
     public final HashMap<Integer, Socks5ConnectionData> connections;
@@ -38,5 +39,15 @@ public class Socks5ClientTunnelChannelWrapper extends TunnelChannelWrapper {
         }
         connection.client.addInterest(SelectionKey.OP_READ);
         connection.client.stopReading = false;
+    }
+
+    @Override
+    public void cleanup() {
+        for (Map.Entry<Integer, Socks5ConnectionData> entry : connections.entrySet()) {
+            ChannelWrapper wrapper = entry.getValue().client;
+            wrapper.disconnectListener = null;
+            wrapper.close();
+        }
+        connections.clear();
     }
 }
