@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Variables {
+    public static File secretFile;
     public static int port;
     public static InetSocketAddress serverAddress;
     public static MessageDigest hashAlgorithm;
@@ -20,6 +21,8 @@ public class Variables {
 
     public static void loadAllVariables(String[] args) throws Exception {
         // TODO: Read from args
+
+        String secretPath = "key.dat";
 
         String serverIp = "localhost";
         int serverPort = 16384;
@@ -48,12 +51,15 @@ public class Variables {
                             break;
                         }
                     }
+                } else if (key.equals("secretPath")) {
+                    secretPath = entry.getValue();
                 }
             }
         } catch (IOException e) {
             Logger.warning("No configuration file found, using default settings.");
         }
 
+        secretFile = new File(secretPath);
         serverAddress = new InetSocketAddress(serverIp, serverPort);
         hashAlgorithm = MessageDigest.getInstance(Constants.HASH_ALGORITHM);
     }
