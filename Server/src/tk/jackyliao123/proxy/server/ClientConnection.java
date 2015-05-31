@@ -4,7 +4,7 @@ import tk.jackyliao123.proxy.Constants;
 import tk.jackyliao123.proxy.Logger;
 import tk.jackyliao123.proxy.TunnelChannelWrapper;
 import tk.jackyliao123.proxy.Util;
-import tk.jackyliao123.proxy.cipher.AESCipher;
+import tk.jackyliao123.proxy.crypto.AESCipher;
 import tk.jackyliao123.proxy.server.event.ServerEncryptedPacketLengthListener;
 import tk.jackyliao123.proxy.server.event.ServerEncryptedPacketListener;
 

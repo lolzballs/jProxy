@@ -1,4 +1,4 @@
-package tk.jackyliao123.proxy.cipher;
+package tk.jackyliao123.proxy.crypto;
 
 import tk.jackyliao123.proxy.Constants;
 

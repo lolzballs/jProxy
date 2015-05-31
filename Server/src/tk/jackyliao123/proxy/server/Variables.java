@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Variables {
+    public static File privateKeyFile;
+    public static File publicKeyFile;
     public static int serverPort;
     public static File secretKeyFile;
     public static MessageDigest hashAlgorithm;
@@ -20,6 +22,8 @@ public class Variables {
     public static void loadAllVariables(String[] args) throws Exception {
         // TODO: Read from args + config files
 
+        String privateKeyPath = "private.dat";
+        String publicKeyPath = "public.dat";
         String keyFilePath = "keys.dat";
 
         serverPort = 16384;
@@ -44,12 +48,18 @@ public class Variables {
                             break;
                         }
                     }
+                } else if (key.equals("privateKeyPath")) {
+                    privateKeyPath = entry.getValue();
+                } else if (key.equals("publicKeyPath")) {
+                    publicKeyPath = entry.getValue();
                 }
             }
         } catch (IOException e) {
             Logger.warning("No configuration file found, using default settings.");
         }
 
+        privateKeyFile = new File(privateKeyPath);
+        publicKeyFile = new File(publicKeyPath);
         secretKeyFile = new File(keyFilePath);
         hashAlgorithm = MessageDigest.getInstance(Constants.HASH_ALGORITHM);
     }

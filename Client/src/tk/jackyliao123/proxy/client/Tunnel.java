@@ -1,7 +1,7 @@
 package tk.jackyliao123.proxy.client;
 
 import tk.jackyliao123.proxy.*;
-import tk.jackyliao123.proxy.cipher.AESCipher;
+import tk.jackyliao123.proxy.crypto.AESCipher;
 import tk.jackyliao123.proxy.client.event.ClientEncryptedPacketLengthListener;
 import tk.jackyliao123.proxy.client.event.ClientEncryptedPacketListener;
 import tk.jackyliao123.proxy.client.event.ConnectToServerListener;
