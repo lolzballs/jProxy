@@ -128,7 +128,7 @@ public class EventProcessor {
                 if (e.getMessage().equals("Connection reset by peer")) {
                     Logger.info("Connection Reset: " + key.channel());
                 } else {
-                    Logger.warning("IO error happened");
+                    Logger.error(e);
                 }
                 kill((ChannelWrapper) key.attachment());
             } catch (Exception e) {

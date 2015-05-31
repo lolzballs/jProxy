@@ -27,13 +27,13 @@ public class Tunnel {
     public boolean connected;
     private AESCipher cipher;
 
-    public Tunnel(EventProcessor processor, byte[] secretKey, TCPListener tcpListener) throws IOException {
+    public Tunnel(EventProcessor processor, TCPListener tcpListener) throws IOException {
         this.processor = processor;
         SocketChannel serverSocketChannel = SocketChannel.open();
         serverSocketChannel.configureBlocking(false);
         serverSocketChannel.connect(Variables.serverAddress);
 
-        this.rawServerConnection = processor.registerSocketChannel(serverSocketChannel, new ConnectToServerListener(this, secretKey));
+        this.rawServerConnection = processor.registerSocketChannel(serverSocketChannel, new ConnectToServerListener(this));
 
         this.packetLengthListener = new ClientEncryptedPacketLengthListener(this);
         this.packetListener = new ClientEncryptedPacketListener(this);

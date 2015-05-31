@@ -11,11 +11,9 @@ import java.nio.channels.SocketChannel;
 
 public class ConnectToServerListener implements ConnectEventListener {
     private final Tunnel tunnel;
-    private final byte[] secretKey;
 
-    public ConnectToServerListener(Tunnel tunnel, byte[] secretKey) {
+    public ConnectToServerListener(Tunnel tunnel) {
         this.tunnel = tunnel;
-        this.secretKey = secretKey;
     }
 
     @Override
@@ -31,7 +29,7 @@ public class ConnectToServerListener implements ConnectEventListener {
         handshake.put(Constants.MINOR);
         handshake.flip();
         c.pushWriteBuffer(handshake);
-        c.pushFillReadBuffer(ByteBuffer.allocate(Constants.MAGIC_LENGTH + 1), new HandshakeResponseListener(tunnel, secretKey));
+        c.pushFillReadBuffer(ByteBuffer.allocate(Constants.MAGIC_LENGTH + 1), new HandshakeResponseListener(tunnel));
         return true;
     }
 }

@@ -20,11 +20,9 @@ import java.security.KeyPairGenerator;
 
 public class HandshakeResponseListener implements ReadEventListener {
     private Tunnel tunnel;
-    private byte[] secretKey;
 
-    public HandshakeResponseListener(Tunnel tunnel, byte[] secretKey) {
+    public HandshakeResponseListener(Tunnel tunnel) {
         this.tunnel = tunnel;
-        this.secretKey = secretKey;
     }
 
     @Override

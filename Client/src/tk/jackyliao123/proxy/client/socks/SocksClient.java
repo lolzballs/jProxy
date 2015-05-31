@@ -29,13 +29,13 @@ public class SocksClient implements AcceptEventListener {
     private boolean connected = false;
     private boolean running = false;
 
-    public SocksClient(int port, byte[] key) throws IOException {
+    public SocksClient(int port) throws IOException {
         this.processor = new EventProcessor();
         this.serverChannel = ServerSocketChannel.open();
 
         this.connections = new HashMap<Integer, Socks5ConnectionData>();
 
-        this.tunnel = new Tunnel(processor, key, new Socks5TCPListener(this));
+        this.tunnel = new Tunnel(processor, new Socks5TCPListener(this));
         this.tunnel.serverConnection = new Socks5ClientTunnelChannelWrapper(connections, tunnel.rawServerConnection);
 
 
@@ -51,15 +51,10 @@ public class SocksClient implements AcceptEventListener {
         Logger.init(Logger.DEBUG);
 
         try {
-            DataInputStream input = new DataInputStream(new FileInputStream(new File("keys.dat")));
-            input.readUTF();
-            byte[] key = new byte[Constants.SECRET_SALT_SIZE];
-            input.readFully(key);
-
             Variables.loadAllVariables(args);
             Logger.setLoggingLevel(Variables.loggingLevel);
 
-            SocksClient client = new SocksClient(Variables.port, key);
+            SocksClient client = new SocksClient(Variables.port);
             client.start();
         } catch (Exception e) {
             Logger.error("SocksClient has experienced a critical error!");
