@@ -9,7 +9,7 @@ import java.security.PublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 
 public class RSAKeyLoader {
-    public static PublicKey getPublicKey(byte[] bytes) throws GeneralSecurityException {
+    public static PublicKey loadPublicKey(byte[] bytes) throws GeneralSecurityException {
         PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(bytes);
         KeyFactory kf = KeyFactory.getInstance(Constants.RSA_ALGORITHM);
         return kf.generatePublic(spec);
