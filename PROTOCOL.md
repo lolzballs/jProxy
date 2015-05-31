@@ -1,4 +1,4 @@
-# jProxy Protocol 2.0
+# jProxy Protocol Version 3
 
 All numbers are little-endian.
 
@@ -41,6 +41,8 @@ The login stage authenticates the user, to prevent malicious connections.
 This step is required to allow only authorized people from accessing the server.
 
 In this stage, the client and server also exchange RSA and AES keys, giving encryption for Data Tunnelling.
+
+The Shared Secret Salt is like a password and is bound to only one specific RSA key.
 
 | Direction | Length | Description                                                                 |
 |:--------- | ------:|:--------------------------------------------------------------------------- |
