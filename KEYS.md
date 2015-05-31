@@ -19,5 +19,5 @@ The file shall be named `key.dat`.
 
 | Length | Description                                                                 |
 | ------:|:--------------------------------------------------------------------------- |
-|    296 | The client's RSA private key, encoded using `PKCS8EncodedKeySpec`           |
+|   1216 | The client's RSA private key, encoded using `PKCS8EncodedKeySpec`           |
 |     32 | Hash of Client PUBLIC Key with Shared Secret Salt                           |

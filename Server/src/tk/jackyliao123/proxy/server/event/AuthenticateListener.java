@@ -48,10 +48,7 @@ public class AuthenticateListener implements ReadEventListener {
 
     @Override
     public void onRead(ChannelWrapper channel, byte[] array) throws IOException {
-        byte[] hash = new byte[Constants.HASH_SIZE];
-        System.arraycopy(array, Constants.HASH_SIZE, hash, 0, Constants.HASH_SIZE);
-
-        User user = Validator.isValid(hash);
+        User user = Validator.isValid(array);
         if (user == null) {
             sendInvalid(channel);
             return;
