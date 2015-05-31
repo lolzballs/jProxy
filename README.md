@@ -15,3 +15,7 @@ All connections after the AES key is sent will be encrypted.
 
 The jProxy Protocol can be found in the [PROTOCOL.md](./PROTOCOL.md) file.
 We are currently on version 2.2.
+
+# License
+
+We are licensed under the GNU GPLv2 license.
