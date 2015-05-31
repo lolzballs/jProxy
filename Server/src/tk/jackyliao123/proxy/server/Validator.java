@@ -21,6 +21,8 @@ public class Validator {
             String username = input.readUTF();
             byte[] secretSalt = new byte[Constants.SECRET_SALT_SIZE];
             byte[] clientPub = new byte[Constants.RSA_PUBLICKEYSIZE_BYTES];
+            input.readFully(secretSalt);
+            input.readFully(clientPub);
             return new User(username, secretSalt, RSAKeyLoader.loadPublicKey(clientPub));
         } catch (IOException e) {
             return null;
