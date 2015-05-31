@@ -43,7 +43,7 @@ This step is required to allow only authorized people from accessing the server.
 In this stage, the client and server also exchange RSA and AES keys, giving encryption for Data Tunnelling.
 
 The Shared Secret Salt is like a password and is bound to only one specific client RSA Public Key, and one server RSA Private Key.
-Further details on the keys.dat file will be described in the [KEYS.md](./KEYS.md) file.
+Further details on the key files will be described in the [KEYS.md](./KEYS.md) file.
 
 | Direction | Length | Description                                                                 |
 |:--------- | ------:|:--------------------------------------------------------------------------- |
