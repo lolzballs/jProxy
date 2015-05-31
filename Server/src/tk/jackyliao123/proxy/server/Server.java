@@ -16,7 +16,6 @@ import java.util.HashMap;
 
 public class Server implements AcceptEventListener {
     public EventProcessor processor;
-    public Validator validator;
     public HashMap<String, ClientConnection> connections;
     public HandshakeListener handshakeListener;
     public AuthenticateListener authenticateListener;
@@ -27,7 +26,6 @@ public class Server implements AcceptEventListener {
         this.serverChannel = ServerSocketChannel.open();
         this.processor = new EventProcessor();
 
-        this.validator = new Validator(Variables.secretKeyFile);
         this.connections = new HashMap<String, ClientConnection>();
 
         this.handshakeListener = new HandshakeListener(this);

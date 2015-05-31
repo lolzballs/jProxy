@@ -40,6 +40,6 @@ public class HandshakeListener implements ReadEventListener {
             Logger.error("WARNING: MINOR VERSION MISMATCH: Received " + array[Constants.MAGIC_LENGTH] + ", Expected " + Constants.MINOR);
         }
         sendResponse(channel, Constants.INIT_SUCCESSFUL);
-        channel.pushFillReadBuffer(ByteBuffer.allocate(Constants.RSA_PUBLICKEYSIZE_BYTES + Constants.HASH_SIZE), server.authenticateListener);
+        channel.pushFillReadBuffer(ByteBuffer.allocate(Constants.HASH_SIZE), server.authenticateListener);
     }
 }

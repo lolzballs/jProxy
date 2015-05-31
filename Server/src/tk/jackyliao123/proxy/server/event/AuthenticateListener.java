@@ -5,9 +5,7 @@ import tk.jackyliao123.proxy.Constants;
 import tk.jackyliao123.proxy.Logger;
 import tk.jackyliao123.proxy.crypto.AESCipher;
 import tk.jackyliao123.proxy.event.ReadEventListener;
-import tk.jackyliao123.proxy.server.ClientConnection;
-import tk.jackyliao123.proxy.server.Server;
-import tk.jackyliao123.proxy.server.ServerTunnelChannelWrapper;
+import tk.jackyliao123.proxy.server.*;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
@@ -50,13 +48,10 @@ public class AuthenticateListener implements ReadEventListener {
 
     @Override
     public void onRead(ChannelWrapper channel, byte[] array) throws IOException {
-        byte[] rsaKey = new byte[Constants.RSA_PUBLICKEYSIZE_BYTES];
-        System.arraycopy(array, 0, rsaKey, 0, Constants.RSA_PUBLICKEYSIZE_BYTES);
-
         byte[] hash = new byte[Constants.HASH_SIZE];
         System.arraycopy(array, Constants.RSA_PUBLICKEYSIZE_BYTES, hash, 0, Constants.HASH_SIZE);
 
-        String user = server.validator.isValid(rsaKey, hash);
+        User user = Validator.isValid(hash);
         if (user == null) {
             sendInvalid(channel);
             return;
@@ -64,8 +59,6 @@ public class AuthenticateListener implements ReadEventListener {
 
         try {
             Logger.verbose("Generating AES Key...");
-            PublicKey clientKey = KeyFactory.getInstance(Constants.RSA_ALGORITHM).generatePublic(new X509EncodedKeySpec(rsaKey));
-
             KeyGenerator generator = KeyGenerator.getInstance(Constants.AES_ALGORITHM);
             generator.init(Constants.AES_KEYSIZE);
             SecretKey key = generator.generateKey();
@@ -74,11 +67,11 @@ public class AuthenticateListener implements ReadEventListener {
             ServerTunnelChannelWrapper tunnelWrapper = new ServerTunnelChannelWrapper(channel);
             ClientConnection connection = new ClientConnection(server, tunnelWrapper, new AESCipher(key));
             tunnelWrapper.connections = connection.tcp.tcpConnections;
-            server.connections.put(user, connection);
-            sendAccepted(tunnelWrapper, clientKey, aesKey);
+            server.connections.put(user.username, connection);
+            sendAccepted(tunnelWrapper, user.clientPub, aesKey);
             tunnelWrapper.pushFillReadBuffer(ByteBuffer.allocate(1), connection.packetLengthListener);
 
-            Logger.info("User " + user + " connected from " + channel.channel);
+            Logger.info("User " + user.username + " connected from " + channel.channel);
         } catch (GeneralSecurityException e) {
             throw new IOException(e);
         }
