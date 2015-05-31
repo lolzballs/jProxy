@@ -6,9 +6,13 @@ import tk.jackyliao123.proxy.Logger;
 import tk.jackyliao123.proxy.Util;
 import tk.jackyliao123.proxy.client.Tunnel;
 import tk.jackyliao123.proxy.client.Variables;
+import tk.jackyliao123.proxy.crypto.RSAKeyLoader;
 import tk.jackyliao123.proxy.event.ReadEventListener;
 
 import javax.crypto.Cipher;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.security.KeyPair;
@@ -40,27 +44,21 @@ public class HandshakeResponseListener implements ReadEventListener {
         }
 
         try {
-            // Generate keys
-            Logger.verbose("Generating RSA keypair... ");
-            KeyPairGenerator generator = KeyPairGenerator.getInstance(Constants.RSA_ALGORITHM);
-            generator.initialize(Constants.RSA_KEYSIZE);
-            KeyPair rsaPair = generator.generateKeyPair();
+            DataInputStream input = new DataInputStream(new FileInputStream(Variables.secretFile));
+            // Get keys
+            Logger.verbose("Retrieving RSA private key... ");
+            byte[] encoded = new byte[Constants.RSA_PRIVATEKEYSIZE_BYTES];
+            input.readFully(encoded, 0, Constants.RSA_PRIVATEKEYSIZE_BYTES);
             Cipher decrypt = Cipher.getInstance(Constants.RSA_ALGORITHM);
-            decrypt.init(Cipher.DECRYPT_MODE, rsaPair.getPrivate());
-            byte[] encoded = rsaPair.getPublic().getEncoded();
-            Logger.verbose("complete, generated " + encoded.length + " bytes");
+            decrypt.init(Cipher.DECRYPT_MODE, RSAKeyLoader.loadPrivateKey(encoded));
 
-            // Generate hash
-            Logger.verbose("Generating key signature hash... ");
-            byte[] toBeHashed = new byte[Constants.RSA_PUBLICKEYSIZE_BYTES + Constants.SECRET_SALT_SIZE];
-            System.arraycopy(encoded, 0, toBeHashed, 0, Constants.RSA_PUBLICKEYSIZE_BYTES);
-            System.arraycopy(secretKey, 0, toBeHashed, Constants.RSA_PUBLICKEYSIZE_BYTES, Constants.SECRET_SALT_SIZE);
+            Logger.verbose("Retrieving key signature hash... ");
 
-            byte[] hash = Variables.hashAlgorithm.digest(toBeHashed);
+            byte[] hash = new byte[Constants.HASH_SIZE];
+            input.readFully(hash, 0, Constants.HASH_SIZE);
             Logger.verbose("complete");
 
-            ByteBuffer auth = ByteBuffer.allocate(Constants.RSA_PUBLICKEYSIZE_BYTES + Constants.HASH_SIZE);
-            auth.put(encoded);
+            ByteBuffer auth = ByteBuffer.allocate(Constants.HASH_SIZE);
             auth.put(hash);
             auth.flip();
             channel.pushWriteBuffer(auth);
