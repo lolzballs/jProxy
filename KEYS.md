@@ -1,3 +1,7 @@
+# jProxy KSF (Key Storage Format)
+
+## Server
+
 Each user shall have it's own .dat file containing its username, and RSA keys.
 The name of the file shall be the secret salt.
 
@@ -7,3 +11,8 @@ The name of the file shall be the secret salt.
 |      n | The username encoded using UTF-8                                            |
 |    256 | The secret key (salt)                                                       |
 |    296 | The client's RSA public key, encoded using `PKCS8EncodedKeySpec`            |
+
+## Client
+
+The client will have a file which contains the private key of the client, encoded with `PKCS8EncodedKeySpec`.
+The file shall be named `key.dat`.
