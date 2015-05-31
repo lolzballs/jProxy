@@ -1,13 +1,10 @@
 package tk.jackyliao123.proxy.client.socks;
 
-import com.sun.org.apache.bcel.internal.generic.Select;
 import tk.jackyliao123.proxy.ChannelWrapper;
 import tk.jackyliao123.proxy.Logger;
 import tk.jackyliao123.proxy.TunnelChannelWrapper;
-import tk.jackyliao123.proxy.client.socks.Socks5ConnectionData;
 
 import java.nio.channels.SelectionKey;
-import java.nio.channels.SocketChannel;
 import java.util.HashMap;
 import java.util.Map;
 

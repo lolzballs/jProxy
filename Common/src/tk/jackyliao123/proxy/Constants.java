@@ -3,8 +3,8 @@ package tk.jackyliao123.proxy;
 public class Constants {
     // Handshake Constants
     public static final byte[] MAGIC = new byte[]{'j', 'P', 'r', 'o', 'x', 'y'};
-    public static final byte MAJOR = 2;
-    public static final byte MINOR = 1;
+    public static final byte MAJOR = 3;
+    public static final byte MINOR = 0;
     public static final int MAGIC_LENGTH = MAGIC.length;
 
     // Initalization return codes
