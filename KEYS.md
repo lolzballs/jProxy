@@ -7,4 +7,3 @@ The name of the file shall be the secret salt.
 |      n | The username encoded using UTF-8                                            |
 |    256 | The secret key (salt)                                                       |
 |    296 | The client's RSA public key, encoded using `PKCS8EncodedKeySpec`            |
-|   1216 | The server's RSA private key, encoded using `PKCS8EncodedKeySpec`           |

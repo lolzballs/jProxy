@@ -42,12 +42,11 @@ This step is required to allow only authorized people from accessing the server.
 
 In this stage, the client and server also exchange RSA and AES keys, giving encryption for Data Tunnelling.
 
-The Shared Secret Salt is like a password and is bound to only one specific client RSA Public Key, and one server RSA Private Key.
+The Shared Secret Salt is like a password and is bound to only one specific client RSA Public Key.
 Further details on the key files will be described in the [KEYS.md](./KEYS.md) file.
 
 | Direction | Length | Description                                                                 |
 |:--------- | ------:|:--------------------------------------------------------------------------- |
-| s |    296 | 2048-bit RSA Client PUBLIC Key                                                      |
 | s |     32 | Hash of Client PUBLIC Key with Shared Secret Salt                                   |
 | r |      1 | Status (0=Accepted, 1=Invalid Key)                                                  |
 | r |     16 | 128-bit AES Key encrypted with Client PUBLIC Key (if status is accepted)            |
