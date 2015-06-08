@@ -45,7 +45,7 @@ public class ClientConnection {
             throw new IOException("Error: encrypted blocks is more than 256: " + length / 16);
         }
 
-        Logger.debug("Sending: " + Util.bs2str(data));
+        Logger.debug("Sending: " + Util.dbs2str(data));
 
         ByteBuffer b = ByteBuffer.allocate(length + 1);
         b.put((byte) (length / 16));
@@ -77,7 +77,7 @@ public class ClientConnection {
     }
 
     public void processPacket(byte[] data) throws IOException {
-        Logger.debug("Received: " + Util.bs2str(data));
+        Logger.debug("Received: " + Util.dbs2str(data));
 
         int connectionId;
         int remotePort;

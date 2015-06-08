@@ -23,16 +23,20 @@ public class Util {
     }
 
     public static String bs2str(byte[] b) {
-        if (Logger.getLoggingLevel() <= Logger.DEBUG) {
-            StringBuilder sb = new StringBuilder();
-            for (byte aB : b) {
-                String s = Integer.toHexString(aB & 0xFF).toUpperCase();
-                if (s.length() == 1) {
-                    sb.append('0');
-                }
-                sb.append(s);
+        StringBuilder sb = new StringBuilder();
+        for (byte aB : b) {
+            String s = Integer.toHexString(aB & 0xFF).toUpperCase();
+            if (s.length() == 1) {
+                sb.append('0');
             }
-            return sb.toString();
+            sb.append(s);
+        }
+        return sb.toString();
+    }
+
+    public static String dbs2str(byte[] b) {
+        if (Logger.getLoggingLevel() <= Logger.DEBUG) {
+            return bs2str(b);
         }
         return "";
     }

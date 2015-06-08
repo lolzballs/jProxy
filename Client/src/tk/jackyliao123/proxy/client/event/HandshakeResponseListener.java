@@ -45,8 +45,8 @@ public class HandshakeResponseListener implements ReadEventListener {
             DataInputStream input = new DataInputStream(new FileInputStream(Variables.secretFile));
             // Get keys
             Logger.verbose("Retrieving RSA private key... ");
-            byte[] encoded = new byte[Constants.RSA_PRIVATEKEYSIZE_BYTES];
-            input.readFully(encoded, 0, Constants.RSA_PRIVATEKEYSIZE_BYTES);
+            byte[] encoded = new byte[input.readInt()];
+            input.readFully(encoded);
             Cipher decrypt = Cipher.getInstance(Constants.RSA_ALGORITHM);
             decrypt.init(Cipher.DECRYPT_MODE, RSAKeyLoader.loadPrivateKey(encoded));
 

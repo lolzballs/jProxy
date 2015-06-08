@@ -53,7 +53,6 @@ public class Constants {
     public static final int RSA_KEYSIZE = 2048;
     public static final int RSA_MODULUSSIZE_BYTES = RSA_KEYSIZE / 8;
     public static final int RSA_PUBLICKEYSIZE_BYTES = 294;
-    public static final int RSA_PRIVATEKEYSIZE_BYTES = 1219;
     public static final int AES_KEYSIZE = 128;
     public static final int AES_KEYSIZE_BYTES = AES_KEYSIZE / 8;
 

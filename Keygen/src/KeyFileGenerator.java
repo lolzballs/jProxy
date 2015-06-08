@@ -6,6 +6,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.*;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class KeyFileGenerator {
@@ -16,7 +18,9 @@ public class KeyFileGenerator {
         }
 
         DataOutputStream out = new DataOutputStream(new FileOutputStream(file));
-        out.write(key.getEncoded());
+        byte[] arr = key.getEncoded();
+        out.writeInt(arr.length);
+        out.write(arr);
         out.write(hash);
         out.close();
     }
