@@ -1,7 +1,12 @@
 package tk.jackyliao123.proxy.client.socks;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.ServerSocketChannel;
+import java.util.HashMap;
+
 import tk.jackyliao123.proxy.ChannelWrapper;
-import tk.jackyliao123.proxy.Constants;
 import tk.jackyliao123.proxy.Logger;
 import tk.jackyliao123.proxy.client.TCPTunnel;
 import tk.jackyliao123.proxy.client.Tunnel;
@@ -11,15 +16,6 @@ import tk.jackyliao123.proxy.client.socks.event.Socks5MethodLengthListener;
 import tk.jackyliao123.proxy.client.socks.event.Socks5TCPListener;
 import tk.jackyliao123.proxy.event.AcceptEventListener;
 import tk.jackyliao123.proxy.event.EventProcessor;
-
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
-import java.nio.channels.ServerSocketChannel;
-import java.util.HashMap;
 
 public class SocksClient implements AcceptEventListener {
     public final EventProcessor processor;
@@ -77,6 +73,10 @@ public class SocksClient implements AcceptEventListener {
         running = false;
     }
 
+    public boolean isConnected() {
+        return connected;
+    }
+
     private void run() {
         while (running) {
             try {
@@ -85,6 +85,7 @@ public class SocksClient implements AcceptEventListener {
                 e.printStackTrace();
             }
         }
+
     }
 
     public void freeId(int id) {
