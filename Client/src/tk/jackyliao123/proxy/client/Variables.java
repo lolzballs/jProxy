@@ -19,6 +19,12 @@ public class Variables {
     public static long timeout;
     public static byte loggingLevel;
 
+    public static void loadDefaultVariables() {
+        secretFile = new File("key.dat");
+        timeout = 60000;
+        loggingLevel = Logger.INFO;
+    }
+
     public static void loadAllVariables(String[] args) throws Exception {
         // TODO: Read from args
 
