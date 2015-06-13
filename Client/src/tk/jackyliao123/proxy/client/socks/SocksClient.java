@@ -78,7 +78,7 @@ public class SocksClient implements AcceptEventListener {
     }
 
     public boolean isConnected() {
-        return connected;
+        return tunnel.connected;
     }
 
     private void run() {
@@ -102,6 +102,7 @@ public class SocksClient implements AcceptEventListener {
 
     public void disconnect(ChannelWrapper c) {
         connected = false;
+        tunnel.connected = false;
         System.out.println("Disconnected from " + c.channel);
     }
 
