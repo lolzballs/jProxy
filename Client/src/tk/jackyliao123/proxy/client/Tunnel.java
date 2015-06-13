@@ -25,6 +25,7 @@ public class Tunnel {
     public ClientEncryptedPacketListener packetListener;
     public TCPTunnel tcp;
     public boolean connected;
+    public boolean ready;
     private AESCipher cipher;
 
     public Tunnel(EventProcessor processor, TCPListener tcpListener) throws IOException {
@@ -53,7 +54,7 @@ public class Tunnel {
         try {
             cipher = new AESCipher(new SecretKeySpec(aesBytes, Constants.AES_ALGORITHM));
             serverConnection.pushFillReadBuffer(ByteBuffer.allocate(1), packetLengthListener);
-            connected = true;
+            ready = true;
         } catch (GeneralSecurityException e) {
             throw new IOException(e);
         }

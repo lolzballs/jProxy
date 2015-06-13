@@ -23,6 +23,9 @@ public class ConnectToServerListener implements ConnectEventListener {
         if (!connected) {
             throw new IOException("Connection Failed");
         }
+
+        tunnel.connected = true;
+
         ByteBuffer handshake = ByteBuffer.allocate(Constants.MAGIC_LENGTH + 2);
         handshake.put(Constants.MAGIC);
         handshake.put(Constants.MAJOR);
