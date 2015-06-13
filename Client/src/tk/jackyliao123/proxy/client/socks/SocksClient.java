@@ -71,6 +71,10 @@ public class SocksClient implements AcceptEventListener {
     public void stop() {
         running = false;
         Logger.stop();
+        try {
+            serverChannel.close();
+        } catch (IOException ignored) {
+        }
     }
 
     public boolean isConnected() {

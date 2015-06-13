@@ -10,16 +10,19 @@ public class Logger {
     public static final byte ERROR = 4;
     public static final String[] messages = new String[]{"DEBUG", "VERBOSE", "INFO", "WARNING", "ERROR"};
     private static final ArrayDeque<Message> queue = new ArrayDeque<Message>();
-    private static final LogThread thread = new LogThread();
+    private static LogThread thread;
     private static byte level;
 
     public static void init(byte level) {
         Logger.level = level;
+        Logger.thread = new LogThread();
         thread.start();
     }
 
     public static void stop() {
         try {
+            thread.running = false;
+            thread.interrupt();
             thread.join();
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -93,13 +96,16 @@ public class Logger {
     }
 
     public static class LogThread extends Thread {
+        public boolean running;
+
         public LogThread() {
+            this.running = true;
             setDaemon(true);
         }
 
         @Override
         public void run() {
-            while (true) {
+            while (running) {
                 try {
                     Thread.sleep(Long.MAX_VALUE);
                 } catch (InterruptedException ignored) {
