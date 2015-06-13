@@ -18,6 +18,14 @@ public class Logger {
         thread.start();
     }
 
+    public static void stop() {
+        try {
+            thread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static byte getLoggingLevel() {
         return level;
     }

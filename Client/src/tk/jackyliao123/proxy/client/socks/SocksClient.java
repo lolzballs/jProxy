@@ -34,7 +34,6 @@ public class SocksClient implements AcceptEventListener {
         this.tunnel = new Tunnel(processor, new Socks5TCPListener(this));
         this.tunnel.serverConnection = new Socks5ClientTunnelChannelWrapper(connections, tunnel.rawServerConnection);
 
-
         tunnel.serverConnection.disconnectListener = new TunnelDisconnectListener(this);
 
         serverChannel.configureBlocking(false);
@@ -71,6 +70,7 @@ public class SocksClient implements AcceptEventListener {
 
     public void stop() {
         running = false;
+        Logger.stop();
     }
 
     public boolean isConnected() {
